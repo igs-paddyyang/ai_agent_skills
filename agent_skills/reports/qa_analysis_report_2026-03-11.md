@@ -33,3 +33,6 @@ The GDD is well-written and shows promise. The core concepts are strong and cons
 
 ---
 *Verified by Antigravity QA Suite*
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

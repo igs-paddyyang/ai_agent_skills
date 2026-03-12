@@ -55,3 +55,6 @@ Step 3: 組裝 → reports/GDD_{主題}_{日期}.md
 
 ---
 *最後更新日期: 2026-03-12*
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

@@ -62,3 +62,6 @@
 ---
 *文件產生日期: 2026-03-11*
 *作者: Antigravity AI*
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

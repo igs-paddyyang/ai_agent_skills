@@ -48,3 +48,6 @@ py clawdbot/src/bot_main.py
 # 啟動 Gemini Canvas 伺服器
 py gemini_canvas/src/server.py
 ```
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

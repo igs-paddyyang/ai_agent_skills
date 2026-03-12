@@ -87,3 +87,6 @@ gemini_canvas/            # 模組 3：視覺化儀表板
 1. 建立 `{module-name}/` 頂層目錄
 2. 子目錄遵循 `src/`、`tests/`、`docs/`、`reports/` 慣例
 3. 更新 `product.md` 的模組表格與 `structure.md` 的目錄樹
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

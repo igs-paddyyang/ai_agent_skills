@@ -90,3 +90,6 @@ inclusion: manual
 - token 成本最高，每份控制在 80 行以內
 - 刪除已成為常識的規則
 - 範例只保留最關鍵的
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

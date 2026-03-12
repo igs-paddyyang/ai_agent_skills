@@ -74,3 +74,6 @@
 ---
 *執行計畫產生日期：2026-03-11*
 *狀態：全線開發完成，Bug 修正已驗證*
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

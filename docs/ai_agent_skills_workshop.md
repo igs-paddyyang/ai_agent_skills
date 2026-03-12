@@ -393,3 +393,6 @@ Agent
 
 ---
 
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

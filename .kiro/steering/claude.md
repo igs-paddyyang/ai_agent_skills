@@ -66,3 +66,6 @@ inclusion: always
 - 所有對外產出（GDD、報告）一律使用**繁體中文**
 - 代碼內的 `print` 日誌可使用英文（方便 Debug）
 - 文件與註解優先使用繁體中文
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

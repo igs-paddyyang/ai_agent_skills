@@ -67,3 +67,6 @@
 
 ---
 *最後更新時間: 2026-03-12*
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

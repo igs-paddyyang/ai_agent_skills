@@ -133,3 +133,6 @@ py agent_skills/tests/qa_validator.py "火山要塞"
 
 ---
 *作者：paddyyang | 2026-03-11*
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

@@ -54,3 +54,6 @@
 ---
 *文件更新日期：2026-03-11*
 *負責人：Antigravity Agent*
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

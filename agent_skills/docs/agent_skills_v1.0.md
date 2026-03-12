@@ -92,3 +92,6 @@
 ---
 *最後更新日期: 2026-03-11*
 
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

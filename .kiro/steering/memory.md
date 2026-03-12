@@ -62,3 +62,6 @@ inclusion: manual
 ## 💬 上次對話摘要
 
 - 2026-03-12：完成 `.kiro/steering/` 全部 6 檔重寫，對齊本 repo 的實際架構與功能。同步更新 `.agent/context/` 相關檔案。
+
+---
+> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License
