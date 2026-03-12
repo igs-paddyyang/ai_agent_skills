@@ -1,7 +1,7 @@
 # 🚀 AI Agent 實戰指南：遊戲研發自動化與技能庫應用 (v1.0)
 
 # 作者: paddyyang
-# 最後修改日期: 2026-03-11
+# 最後修改日期: 2026-03-12
 
 **目標：** 利用 `.agent/skills/` 下的自建專業技能（`level-designer`、`character-creator` 等）與企業自有的 AI 技能庫，將 AI 轉化為具備遊戲開發專業知識的「代理人工作流」，實現 GDD 文件自動生成與研發流程自動化。
 
@@ -22,7 +22,7 @@
 | **技能讀取器 (Skill Loader)** | `.agent/skills/` 目錄存在 | **高度獨立** | 驗證是否能正確掃描 `.agent/skills/` 下的 SKILL.md 技能定義檔。 |
 | **GDD 生成引擎** | Gemini API 金鑰 + 技能定義 | **中度獨立** | 從 `.agent/skills/level-designer/SKILL.md` 與 `.agent/skills/character-creator/SKILL.md` 載入技能定義，依主題命名產出（如 `reports/GDD_{主題}_{日期}.md`），使用 `gemini-2.0-flash`。 |
 | **流程執行器 (Chain Runner)** | Python 3.10+ | **高度獨立** | 執行 `src/` 下的鏈式腳本，使用 `google-genai` 套件。 |
-| **品質驗證器 (QA Validator)** | 邏輯測試案例 | **整合層** | 透過 `tests/test_api.py` 確保模型連通性後執行審計。 |
+| **品質驗證器 (QA Validator)** | 邏輯測試案例 | **整合層** | 自動搜尋 `agent_skills/reports/GDD_{主題}*.md` 最新檔案進行審計，產出 `reports/qa_analysis_{主題}_{日期}.md`。 |
 
 ---
 
@@ -86,11 +86,11 @@
 *   **預期**：AI 應根據不同的技能組標籤，自動切換產出的數值深度與描述風格。
 
 ### 4.3 終端運行驗證
-*   **指令**：`py agent_skills/src/gdd_generator.py "深海科研站"`
-*   **預期**：終端最後一行應顯示 `Generation SUCCESS: reports/GDD_深海科研站_*.md`。
+*   **指令**：`py agent_skills/tests/qa_validator.py "深海科研站"`
+*   **預期**：終端最後一行應顯示 `✅ QA Analysis Complete: reports/qa_analysis_深海科研站_YYYY-MM-DD.md`。
 
 ---
-*最後更新日期: 2026-03-11*
+*最後更新日期: 2026-03-12*
 
 
 ---

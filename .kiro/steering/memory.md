@@ -24,6 +24,25 @@ inclusion: manual
 
 ### ✅ 已完成
 - `.agent/` 目錄架構建立（rules / skills / workflows / context）
+- 3 份 rules 文件 + 3 份 context 文件
+- 13 個 `.agent/skills/` 技能定義（SKILL.md）
+- Agent Skills 模組：loader.py、gdd_generator.py、qa_validator.py、test_api.py、list_models.py、test_marketing.py
+- 產出 GDD 報告 + QA 分析報告（動態命名：GDD_{主題}_{日期}.md）
+- ClawdBot 核心模組（bot_main、intent_router、crawler_skill、format_utils）
+- Gemini Canvas 模組（server.py、index.html、data.json）
+- 教學投影片 `ai_agent_skills_workshop_slides.md`（含實作練習 3 頁、Skill 秘訣 2 頁）
+- 實戰投影片 `ai_agent_practic_slides.md`
+- `.gitignore` + Git 推送至 GitHub
+- `.kiro/steering/` 6 檔對齊本 repo 實際內容
+- `.kiro/skills/` 3 個 Kiro skill（skill-creator、slide-generator、ai-agent-generator）
+- 全部 `.md` 檔案加入著作權標註
+- 根目錄 `README.md` 建立
+- `.env.example` 環境變數範例
+- `tools/mermaid/build_diagrams.py` + `gdd_flow.mmd` → `docs/images/gdd_flow.png`
+- qa_validator.py 修正（自動搜尋 GDD、動態報告命名、移除 Antigravity 殘留）
+- list_models.py 遷移至 `google-genai` 新 API
+- marketing-pro 實作用技能已移除（僅作為投影片教學範例，由學員自行建立）
+- `.agent/` 目錄架構建立（rules / skills / workflows / context）
 - 3 份 rules 文件（gemini.md、ai_coding_standards.md、ai_coding_workflow.md）
 - 3 份 context 文件（memory.md、ai_agent.md、agent_skills.md）
 - 13 個 `.agent/skills/` 技能定義（SKILL.md）
@@ -41,8 +60,6 @@ inclusion: manual
 - 根目錄 `README.md` 建立
 
 ### ⏳ 進行中
-- slide-generator 模組實作（`slide_generator/` 目錄尚未建立）
-- ai-agent-generator 模組實作（skill 定義已完成，程式碼尚未建立）
 - ClawdBot: Telegram Bot 介面優化與 MarkdownV2 容錯
 - Gemini Canvas: 儀表板互動功能強化
 - `.agent/workflows/` 標準 SOP 建立
@@ -79,7 +96,9 @@ inclusion: manual
 
 ## 💬 上次對話摘要
 
-- 2026-03-12：建立 `.kiro/skills/ai-agent-generator.md`，整合 clawdbot（Bot 架構）+ gemini_canvas（Web 架構）+ 可插拔技能系統（crawler / canvas / slide）。建立根目錄 README.md。更新 memory.md。
+- 2026-03-12（第三輪）：移除實作用 marketing-pro 技能目錄（由學員自行建立）、更新 memory.md 與 context/memory.md、git 提交推送。
+- 2026-03-12（第二輪）：投影片大幅優化（實作練習 3 頁、Skill 秘訣 2 頁、Mermaid 圖表、字型調整）、qa_validator.py 修正、list_models.py 遷移、.env.example 建立、test_marketing.py 建立、tools/mermaid/ 工具。
+- 2026-03-12（第一輪）：建立 ai-agent-generator skill、根目錄 README.md、更新 memory.md。
 
 ---
 > © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License

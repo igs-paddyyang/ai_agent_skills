@@ -41,7 +41,7 @@
 *   **具體步驟**：
     1.  **文件遷移**：將系統設計文件移入 `docs/` 並加上版號。
     2.  **腳本分類**：將測試類腳本從 `scripts/` 移入 `tests/`。
-    3.  **路徑校準**：更新 `gdd_generator.py` 與 `qa_validator.py` 中的內部引用路徑。
+    3.  **路徑校準**：`qa_validator.py` 自動搜尋 `agent_skills/reports/GDD_{主題}*.md`，報告產出為 `reports/qa_analysis_{主題}_{日期}.md`。
     4.  **終端驗證**：確保重構後 `py agent_skills/src/gdd_generator.py` 依然能正確運行。
 
 ---
@@ -52,8 +52,8 @@
 *   [ ] **指令自動化**：能在 60 秒內產出完整且專業的 GDD。
 
 ---
-*文件更新日期：2026-03-11*
-*負責人：Antigravity Agent*
+*文件更新日期：2026-03-12*
+*負責人：paddyyang*
 
 ---
 > © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License
