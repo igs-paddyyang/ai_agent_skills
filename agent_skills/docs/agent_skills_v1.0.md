@@ -3,14 +3,14 @@
 # 作者: paddyyang
 # 最後修改日期: 2026-03-11
 
-**目標：** 利用 `.agent/skills/` 下的專業技能（`level-designer`、`character-creator`）與 `antigravity-awesome-skills` 技能庫，將 AI 轉化為具備遊戲開發專業知識的「代理人工作流」，實現 GDD 文件自動生成與研發流程自動化。
+**目標：** 利用 `.agent/skills/` 下的自建專業技能（`level-designer`、`character-creator` 等）與企業自有的 AI 技能庫，將 AI 轉化為具備遊戲開發專業知識的「代理人工作流」，實現 GDD 文件自動生成與研發流程自動化。
 
 ---
 
 ## 📋 1. 需求分析
 
 ### 1.1 核心功能需求
-*   **技能庫掛載**：從 `.agent/skills/` 動態引用專業遊戲開發技能（`level-designer`、`character-creator`），並可擴充引用 `antigravity-awesome-skills` 技能庫中的子技能。
+*   **技能庫掛載**：從 `.agent/skills/` 動態引用專業遊戲開發技能（`level-designer`、`character-creator`），並可靈活擴充企業內部的自訂技能。
 *   **鏈式任務編排**：將多個技能按順序串接（如：`@level-designer` -> `@character-creator` -> GDD 組裝）。
 *   **技能定義驅動**：`gdd_generator.py` 從 `.agent/skills/{skill-name}/SKILL.md` 讀取技能定義，注入 prompt 作為系統指令。
 *   **專業規格產出**：產出符合工業標準的遊戲設計文件 (Markdown 格式)。
@@ -35,7 +35,7 @@
     *   `.agent/skills/character-creator/`：角色設計師，負責 Boss 名稱、能力設計與敘事動機。
     *   `.agent/skills/skill-creator/`：技能建立器，用於建立新技能。
 *   **技能庫**：
-    *   `.agent/skills/antigravity-awesome-skills/`：1200+ 社群技能庫，提供 `game-development/game-design` 等參考。
+    *   `.agent/skills/`：企業自建技能庫，包含 `market-analyzer`, `presentation-writer` 等 10+ 項專業自動化技能。
 *   **運作原理**：`gdd_generator.py` 從 `.agent/skills/{skill-name}/SKILL.md` 讀取技能定義，注入 prompt 作為系統指令，強制 AI 執行特定的思維鏈 (CoT)。
 
 ### 2.2 鏈式設計流程 (思維鏈)
@@ -58,7 +58,7 @@
 ### 第一階段：技術環境與自動化部署
 1.  **環境搭建**：建立虛擬環境 `venv` 並安裝依賴套件 `google-genai`, `python-dotenv`。
 2.  **金鑰配置**：建立 `.env` 填入 `GOOGLE_API_KEY` 與伺服器設定。
-3.  **庫同步**：執行 `git clone` 同步 `antigravity-awesome-skills` 到 `.agent/skills/antigravity-awesome-skills`。
+3.  **技能初始化**：確保 `.agent/skills/` 目錄已包含所需的自建技能檔案。
 
 ### 第二階段：技能讀取與基礎測試
 1.  **路徑檢索**：編寫 `loader.py` 驗證 `skills/` 目錄下的路徑連通狀況。

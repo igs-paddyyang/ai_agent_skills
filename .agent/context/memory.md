@@ -34,7 +34,9 @@
 - [x] 產出 3 份 GDD 報告 + QA 分析報告
 - [x] ClawdBot 核心模組 (bot_main, intent_router, crawler_skill, format_utils)
 - [x] Gemini Canvas 模組 (server.py, index.html, data.json)
-- [x] 教學投影片 `ai_agent_practic_slides.md`
+- [x] **教學投影片優化 (Marp V2)**：`ai_agent_skills_workshop_slides_v2.md`
+- [x] **實戰投影片升級 (Marp V2)**：`ai_agent_practic_slides.md` (對齊自建技能)
+- [x] 專案文件調整：`agent_skills_v1.0.md` 已全面切換為**自建技能庫**導向
 - [x] `.gitignore` + 首次 Git 推送至 GitHub
 - [x] `.kiro/steering/` 6 檔對齊本 repo 實際內容 (2026-03-12)
 
@@ -59,6 +61,8 @@
 | 2026-03-11 | GDD 採鏈式架構 (level-designer → character-creator → 組裝) | 上下文傳遞讓 Boss 對齊環境，邏輯一致性更高 |
 | 2026-03-11 | SKILL.md 全文注入 Prompt 作為系統指令 | 完整理解角色規範，比摘要注入品質更好 |
 | 2026-03-12 | Steering 從 Nana Agent 體系重寫為本 repo 專屬 | 原內容描述另一個專案，造成 AI 認知錯位 |
+| 2026-03-12 | 放棄 `antigravity-awesome-skills` 改採**自建企業技能庫** | 提升客製化深度、資料安全性與 SOP 對齊度 |
+| 2026-03-12 | 全面採用 **Marp V2** 製作教學投影片 | 提升專業感，支援玻璃擬態 UI 與 AI 生成素材 |
 
 ---
 
@@ -66,7 +70,7 @@
 - **GitHub**: https://github.com/igs-paddyyang/ai_agent_skills
 
 ---
-*最後更新時間: 2026-03-12*
+*最後更新時間: 2026-03-12 11:58*
 
 ---
 > © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License
