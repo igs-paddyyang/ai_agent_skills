@@ -54,7 +54,8 @@ style: |
 ---
 
 <!-- _class: lead -->
-<!-- _backgroundImage: url('./images/hero.png') -->
+<!-- _backgroundImage: linear-gradient(rgba(0,0,0,0.55), rgba(0,0,0,0.55)), url('./images/hero.png') -->
+<!-- _backgroundSize: cover -->
 <!-- _color: white -->
 <!-- _header: '' -->
 <!-- _footer: '' -->
@@ -126,29 +127,30 @@ AI Skill = **[ Role + Context + Task + Rules + Constraints ]**
 ---
 
 ## 🏗️ AI Skill 的標準結構
-#### 專業技能的組成元素
+#### 以 `level-designer/SKILL.md` 為例
 
 ```markdown
-# SKILL.md
-- **Role**: 資深行銷專家
-- **Context**: 針對 2026 春季新品發布
-- **Task**: 生成 5 個社群媒體文案標題
-- **Rules**: 使用繁體中文，語氣親切，包含 Emoji
-- **Output**: JSON 格式，含 Title 與 Hashtags
+# SKILL.md — 關卡設計師
+- **Role**: 資深遊戲關卡設計師
+- **Context**: 根據主題設計遊戲關卡環境
+- **Task**: 產出環境氛圍、三大危險要素、玩家目標
+- **Rules**: 繁體中文、Markdown 格式、含設計理由
+- **Output**: 結構化 Markdown，供下游 character-creator 接續
 ```
 
 ---
 
 ## 📚 建立你的技能庫 (Skill Library)
-#### 讓 AI 具備橫向擴散的能力
+#### 本專案已有 13 個技能定義
 
 <div class="columns">
 <div>
 
-- `skills/email-writer`
-- `skills/report-generator`
-- `skills/code-reviewer`
-- `skills/slide-designer`
+- 🎮 `character-creator`、`level-designer`
+- 📝 `document-summarizer`、`sop-writer`
+- 📧 `email-writer`、`social-media-writer`
+- 📊 `market-analyzer`、`marketing-copywriter`
+- 🤖 `customer-support-agent`
 
 </div>
 <div class="card">
@@ -156,7 +158,7 @@ AI Skill = **[ Role + Context + Task + Rules + Constraints ]**
 ### 優勢
 1. **一致性**：跨團隊輸出風格統一
 2. **可維護性**：改一行規則，所有 Agent 同步更新
-3. **可測試性**：針對單一技能進行品質優化
+3. **可測試性**：用 `qa_validator.py` 進行 AI 審計
 
 </div>
 </div>
@@ -164,78 +166,70 @@ AI Skill = **[ Role + Context + Task + Rules + Constraints ]**
 ---
 
 ## 🛠️ Skill → CLI Automation
-#### 當技能遇上命令列工具
+#### 當技能遇上命令列工具：GDD 自動生成器
 
-AI Skill 提供「腦力」，CLI 提供「體力」。
+AI Skill 提供「腦力」，CLI 提供「體力」。本專案的真實案例：
 
 ```bash
-# 範例：將 Markdown 轉化為專業 PPT
-python main.py generate --input draft.md --output final.pptx
+# 一行指令，自動產出遊戲設計文件
+py agent_skills/src/gdd_generator.py "火山要塞"
 ```
 
-- **批次處理**：一次產出 100 份報告
-- **系統整合**：與 CI/CD 或定時任務結合
-- **無縫接軌**：直接產出 Office/PDF 等正式格式
+運作原理（Skill-First 模式）：
+1. `gdd_generator.py`（導演）載入 `.agent/skills/level-designer/SKILL.md`
+2. 將技能定義注入 Prompt → Gemini 產出環境設計
+3. 再載入 `character-creator/SKILL.md` + 上一步輸出 → 產出 Boss 設計
+4. 組裝為 `reports/GDD_火山要塞_2026-03-11.md`
 
 ---
 
 ## 📐 本課程 Demo 架構
-#### AI Agent Skills 的運行邏輯
+#### 鏈式 GDD 生成的運行邏輯
 
 ```mermaid
 graph LR
-    User([使用者輸入]) --> AI_Brain{AI 大腦}
-    AI_Brain --> Skill_Lib[(Skill Library)]
-    Skill_Lib --> CLI_Tool[CLI 自動化工具]
-    CLI_Tool --> Result(PowerPoint / 報告)
+    User([使用者輸入主題]) --> GDD[gdd_generator.py 導演]
+    GDD --> LD[/@level-designer\n環境設計]
+    LD --> CC[/@character-creator\nBoss 設計]
+    CC --> Report[reports/GDD_主題.md]
+    
+    LD -.->|上下文傳遞| CC
 ```
+
+每一步都是：載入 SKILL.md → 注入 Prompt → Gemini 生成 → 傳遞上下文
 
 ---
 
-## 📂 專案結構範例
-#### 標準化的 Agent 技能專案結構
+## 📂 專案結構
+#### 本工作坊的實際目錄結構
 
 ```bash
-ai-agent-workshop/
-├── ai_cli/        # 核心自動化邏輯 (Python)
-├── skills/        # 所有的 AI 技能定義 (*.md)
-│   └── ppt-gen/   # 簡報生成專門技能
-├── examples/      # 範例輸入素材
-└── outputs/       # AI 產出的最終成品
+.agent/skills/                    # 技能定義層（劇本）
+├── level-designer/SKILL.md       # 關卡環境設計
+├── character-creator/SKILL.md    # Boss 角色設計
+└── ... (共 13 個技能)
+
+agent_skills/                     # 模組 1：GDD 自動生成器
+├── src/
+│   ├── gdd_generator.py          # 鏈式生成器（導演）
+│   └── loader.py                 # 技能掃描器
+├── tests/
+│   └── qa_validator.py           # 品質校準（AI 審計）
+└── reports/                      # GDD 產出
 ```
 
 ---
 
-## 📝 簡報定義格式 (Markdown v2)
-#### 用最簡單的格式，做最美的事情
-
-```markdown
-# 這是頁面標題
-
-- 這是第一個重點
-- 這是第二個重點
-- 這是第三個重點
-
-<!-- 視覺建議：加入一張示意圖 -->
-```
-
-**為什麼用 Markdown？**
-- 易於版本控制 (Git)
-- AI 生成效率最高
-- 結構清晰，不被樣式干擾
-
----
-
-## ⚡ 實戰示範：AI 生成流程
-#### 從主題到投影片，僅需一個指令
+## ⚡ 實戰示範：GDD 自動生成
+#### 從主題到遊戲設計文件，僅需一個指令
 
 <div class="card">
 
 ### 操作步驟
-1. **輸入主題**：`"AI 在行銷領域的創新應用"`
-2. **AI 規劃**：根據 `ppt-gen` 技能生成大綱
-3. **CLI 轉換**：自動解析 Markdown 並套用佈局
-4. **輸出成品**：在 `outputs/` 資料夾查看成果
+1. **輸入主題**：`"火山要塞"`
+2. **Step 1 — @level-designer**：Gemini 根據技能定義產出環境設計（氛圍、危險要素、玩家目標）
+3. **Step 2 — @character-creator**：接收環境上下文，產出 Boss 設計（名稱、技能、動機）
+4. **GDD 組裝**：合併兩步產出 → `reports/GDD_火山要塞_2026-03-11.md`
 
 </div>
 
@@ -244,14 +238,14 @@ ai-agent-workshop/
 ## 🛠️ Step-by-Step CLI 指令
 
 ```bash
-# 1. 啟動 AI 大腦生成大綱
-python main.py ai "Marketing Innovation"
+# 1. 掃描可用技能（確認 level-designer、character-creator 已就緒）
+py agent_skills/src/loader.py
 
-# 2. 手動微調 (選配)
-code examples/output_draft.md
+# 2. 生成 GDD（鏈式：level-designer → character-creator → 組裝）
+py agent_skills/src/gdd_generator.py "火山要塞"
 
-# 3. 正式產出 PPTX
-python main.py generate examples/output_draft.md
+# 3. 品質校準（AI 審計：檢查 Boss 技能是否對齊環境危險要素）
+py agent_skills/tests/qa_validator.py "火山要塞"
 ```
 
 ---
@@ -267,40 +261,45 @@ python main.py generate examples/output_draft.md
 ---
 
 ## 🤖 Agent Workflow 深度解析
-#### 什麼才是真正的「代理人」？
+#### 什麼才是真正的「代理人」？以 ClawdBot 為例
 
 <div class="columns">
 <div class="card">
 
 ### 傳統腳本
-輸入 A → 產出 B (固定邏輯)
+輸入 A → 產出 B（固定邏輯）
 </div>
 
 <div class="card">
 
-### AI Agent
-輸入需求 → **思考規劃** → **選取技能** → **執行工具** → **自我檢查** → 產出結果
+### ClawdBot（本專案實例）
+使用者訊息 → **Gemini 意圖路由** → 判斷 RESEARCH / CASUAL → **選取技能**（爬蟲 / 閒聊）→ **執行** → **格式化回傳**
 </div>
 </div>
+
+```bash
+# 啟動 ClawdBot（需設定 TELEGRAM_TOKEN）
+py clawdbot/src/bot_main.py
+```
 
 ---
 
 ## 🏢 企業級應用場景
-#### AI Skill 解決了什麼問題？
+#### 本專案技能庫的延伸應用
 
-- **自動週報**：讀取 Jira/Git 直接生成主管簡報
-- **合約審核**：讀取 PDF，根據法規 Skill 自動標註風險
-- **客戶服務**：根據產品手冊 Skill 即時回覆多國語言
-- **數據分析**：讀取 CSV，自動生成趨勢分析與視覺化
+- **自動週報**：用 `document-summarizer` 技能讀取資料，自動生成結構化摘要
+- **客戶服務**：用 `customer-support-agent` 技能，根據產品手冊即時回覆
+- **數據儀表板**：用 `gemini_canvas` 模組，FastAPI + HTML 即時視覺化
 
 ---
 
 ## ✍️ 實作練習：打造你的第一個 Skill
-#### 練習題目：AI 行銷大師
+#### 練習題目：用 skill-creator 建立新技能
 
 > [!TIP]
-> **任務**：請在 `skills/` 下建立一個 `marketing-pro` 資料夾。
-> **內容**：撰寫 `SKILL.md`，讓 AI 能根據產品名稱，產出 3 張「痛點分析」投影片大綱。
+> **任務**：參考 `.agent/skills/skill-creator/SKILL.md` 的規範，在 `.agent/skills/` 下建立一個 `marketing-pro/SKILL.md`。
+> **內容**：定義 Role、Task、Rules、Output，讓 AI 能根據產品名稱產出「痛點分析報告」。
+> **驗證**：用 `py agent_skills/src/loader.py` 確認新技能被掃描到。
 
 ---
 
