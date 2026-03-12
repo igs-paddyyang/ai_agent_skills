@@ -2,7 +2,7 @@
 
 ## 📌 關鍵技術棧 (Key Tech Stack)
 - **環境管理**: Windows OS, Python 3.12+ (使用 `py` 載入器)
-- **AI 模型**: Gemini 2.0 Flash (`google-genai` 套件)
+- **AI 模型**: Gemini 2.5 Flash Lite (`google-genai` 套件)
 - **開發規範**: Skill-First, PEP 8, UTF-8 Encoding
 - **版本控制**: Git → GitHub (`igs-paddyyang/ai_agent_skills`, branch: `main`)
 - **目錄架構**:

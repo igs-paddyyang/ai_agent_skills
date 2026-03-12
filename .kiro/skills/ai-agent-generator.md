@@ -15,7 +15,7 @@ inclusion: manual
 ## 技術棧
 
 - Python 3.12+，Windows 使用 `py` 載入器
-- `google-genai`：Gemini 2.0 Flash LLM 推理
+- `google-genai`：Gemini 2.5 Flash Lite LLM 推理
 - `python-dotenv`：環境變數
 - `python-telegram-bot`：Telegram Bot 閘道
 - `fastapi` + `uvicorn`：Web 服務
@@ -102,7 +102,7 @@ def load_skills() -> dict[str, BaseSkill]:
 
 參考 clawdbot 的 `ClawdBrain` 模式：
 
-- 使用 `google-genai` + `gemini-2.0-flash`
+- 使用 `google-genai` + `models/gemini-2.5-flash-lite`
 - `classify_intent(user_input)` → 回傳 `{"intent": str, "skill": str, "params": dict}`
 - 系統 Prompt 動態注入已載入的技能清單，讓 Gemini 知道可用技能
 - API Key 從 `.env` 的 `GOOGLE_API_KEY` 讀取

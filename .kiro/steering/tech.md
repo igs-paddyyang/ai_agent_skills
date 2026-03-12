@@ -14,7 +14,7 @@ inclusion: always
 ## 主要套件
 | 套件 | 用途 | 使用模組 |
 |---|---|---|
-| `google-genai` | Gemini API（`gemini-2.0-flash`）LLM 推理引擎 | 全部 |
+| `google-genai` | Gemini API（`models/gemini-2.5-flash-lite`）LLM 推理引擎 | 全部 |
 | `python-dotenv` | 環境變數載入 | 全部 |
 | `python-telegram-bot` | Telegram Bot 閘道 | clawdbot |
 | `fastapi` + `uvicorn` | Web 伺服器 | gemini_canvas |

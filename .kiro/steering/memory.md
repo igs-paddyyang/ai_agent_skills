@@ -14,7 +14,7 @@ inclusion: manual
 
 - 專案名稱：AI Agent Skills Workshop（AI 代理技能工作坊）
 - 主要語言：Python 3.12+
-- AI 模型：`gemini-2.0-flash`
+- AI 模型：`models/gemini-2.5-flash-lite`
 - GitHub：https://github.com/igs-paddyyang/ai_agent_skills（branch: main）
 - 最後更新：2026-03-12
 

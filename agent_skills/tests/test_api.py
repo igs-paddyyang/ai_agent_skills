@@ -15,7 +15,7 @@ def main():
         
         print("🚀 正在啟動 API 預熱測試...")
         response = client.models.generate_content(
-            model="gemini-2.0-flash",
+            model="models/gemini-2.5-flash-lite",
             contents="你好! 請用兩句話回覆，測試 API 是否連通正常。"
         )
         

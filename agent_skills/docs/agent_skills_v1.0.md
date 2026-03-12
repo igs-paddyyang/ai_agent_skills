@@ -20,7 +20,7 @@
 | 功能模組 | 驗證前置需求 | 模組獨立性 | 驗證指標 |
 | :--- | :--- | :--- | :--- |
 | **技能讀取器 (Skill Loader)** | `.agent/skills/` 目錄存在 | **高度獨立** | 驗證是否能正確掃描 `.agent/skills/` 下的 SKILL.md 技能定義檔。 |
-| **GDD 生成引擎** | Gemini API 金鑰 + 技能定義 | **中度獨立** | 從 `.agent/skills/level-designer/SKILL.md` 與 `.agent/skills/character-creator/SKILL.md` 載入技能定義，依主題命名產出（如 `reports/GDD_{主題}_{日期}.md`），使用 `gemini-2.0-flash`。 |
+| **GDD 生成引擎** | Gemini API 金鑰 + 技能定義 | **中度獨立** | 從 `.agent/skills/level-designer/SKILL.md` 與 `.agent/skills/character-creator/SKILL.md` 載入技能定義，依主題命名產出（如 `reports/GDD_{主題}_{日期}.md`），使用 `gemini-2.5-flash-lite`。 |
 | **流程執行器 (Chain Runner)** | Python 3.10+ | **高度獨立** | 執行 `src/` 下的鏈式腳本，使用 `google-genai` 套件。 |
 | **品質驗證器 (QA Validator)** | 邏輯測試案例 | **整合層** | 自動搜尋 `agent_skills/reports/GDD_{主題}*.md` 最新檔案進行審計，產出 `reports/qa_analysis_{主題}_{日期}.md`。 |
 
@@ -62,7 +62,7 @@
 
 ### 第二階段：技能讀取與基礎測試
 1.  **路徑檢索**：編寫 `loader.py` 驗證 `skills/` 目錄下的路徑連通狀況。
-2.  **API 驗證**：運行 `list_models.py` 列出可用模型，並透過 `test_api.py` 驗證 `gemini-2.0-flash` 回應品質。
+2.  **API 驗證**：運行 `list_models.py` 列出可用模型，並透過 `test_api.py` 驗證 `gemini-2.5-flash-lite` 回應品質。
 
 ### 第三階段：GDD 自動生成器開發
 1.  **鏈式腳本**：實作 `gdd_generator.py`，串接關卡 (Level) 與角色 (Character) 兩大技能組。

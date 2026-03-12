@@ -10,7 +10,7 @@ def validate_gdd(file_path: str, theme: str = "") -> None:
         return
 
     client = genai.Client(api_key=api_key)
-    MODEL = "gemini-2.0-flash"
+    MODEL = "models/gemini-2.5-flash-lite"
 
     if not os.path.exists(file_path):
         print(f"❌ Error: File {file_path} not found.")

@@ -394,7 +394,7 @@ with open(".agent/skills/marketing-pro/SKILL.md", "r", encoding="utf-8") as f:
     skill_prompt = f.read()
 
 response = client.models.generate_content(
-    model="gemini-2.0-flash",
+    model="models/gemini-2.5-flash-lite",
     contents=f"{skill_prompt}\n\n請針對產品「AI 寫作助手」進行痛點分析。"
 )
 print(response.text)

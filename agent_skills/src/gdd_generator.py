@@ -28,7 +28,7 @@ def main(theme):
         return
 
     client = genai.Client(api_key=api_key)
-    MODEL = "gemini-2.0-flash"
+    MODEL = "models/gemini-2.5-flash-lite"
 
     # 載入技能定義
     print("📦 正在載入 .agent/skills/ 技能定義...")

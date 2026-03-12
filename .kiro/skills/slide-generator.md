@@ -17,7 +17,7 @@ inclusion: manual
 - Python 3.12+，Windows 使用 `py` 載入器
 - `python-pptx`：PPTX 生成
 - `typer` + `rich`：CLI 框架
-- `google-genai`：AI 大綱生成（Gemini 2.0 Flash）
+- `google-genai`：AI 大綱生成（Gemini 2.5 Flash Lite）
 - `python-dotenv`：環境變數
 
 ## 工作流程
@@ -78,7 +78,7 @@ def create_ppt(slides: list[dict], output_path: str = "outputs/presentation.pptx
 def generate_outline(topic: str) -> str:
 ```
 
-注意：使用 `google-genai` + `gemini-2.0-flash`，不是 OpenAI。API Key 從 `.env` 的 `GOOGLE_API_KEY` 讀取。
+注意：使用 `google-genai` + `models/gemini-2.5-flash-lite`，不是 OpenAI。API Key 從 `.env` 的 `GOOGLE_API_KEY` 讀取。
 
 ### 步驟 5：實作 main.py CLI 入口
 

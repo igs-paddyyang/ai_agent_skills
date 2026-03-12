@@ -17,7 +17,7 @@
 *   **核心任務**：建立隔離開發環境與資源同步。
 *   **具體步驟**：
     1.  **環境初始化**：建立 Python 虛擬環境並安裝 `google-genai`, `python-dotenv` 套件。
-    2.  **相依性安裝**：確保使用的 SDK 版本支援最新 `gemini-2.0-flash` 模型。
+    2.  **相依性安裝**：確保使用的 SDK 版本支援最新 `gemini-2.5-flash-lite` 模型。
     3.  **金鑰配置**：設定 `.env` 檔案中的 `GOOGLE_API_KEY`。
     4.  **技能庫初始化**：確認 `.agent/skills/` 下的自建技能定義已就緒。
 
@@ -26,7 +26,7 @@
 *   **具體步驟**：
     1.  **建立載入器**：實作 `loader.py` 用於掃描技能標籤。
     2.  **路徑檢測 (TEST-01)**：確保能正確識別並讀取技能檔案。
-    3.  **API 校準 (TEST-02)**：執行 `list_models.py` 檢查可用模型清單，並使用 `test_api.py` 針對 `gemini-2.0-flash` 進行預熱測試。
+    3.  **API 校準 (TEST-02)**：執行 `list_models.py` 檢查可用模型清單，並使用 `test_api.py` 針對 `gemini-2.5-flash-lite` 進行預熱測試。
 
 ### 第三階段：GDD 生成器開發與產出轉向 (Development)
 *   **核心任務**：運用「思維鏈」架構串接多種專業技能。
