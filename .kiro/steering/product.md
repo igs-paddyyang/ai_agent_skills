@@ -20,7 +20,7 @@ Google Antigravity — Agent Skills Factory。一個用於建立 AI Agent 架構
 
 ## 核心產出物
 
-### Kiro Skills（11 個）
+### Kiro Skills（19 個）
 - `skill-creator` — 建立 / 測試 / 打包技能的元技能
 - `skill-spec-writer` — 技能級規格文件（餵給 skill-creator）
 - `software-spec-writer` — 專案級規格文件 + 任務執行計畫
@@ -32,6 +32,14 @@ Google Antigravity — Agent Skills Factory。一個用於建立 AI Agent 架構
 - `env-smoke-test` — 環境煙霧測試
 - `skill-sync` — 技能同步備份（.kiro → .agent）
 - `game-design-document-writer` — 遊戲企劃文件（GDD + One Pager）
+- `skill-seeker` — 文件來源自動轉換為 Kiro Skill 草稿
+- `tdd-workflow` — 測試驅動開發 Red-Green-Refactor 工作流
+- `software-architecture-guide` — Clean Architecture / SOLID / 設計模式指引
+- `mcp-builder-guide` — MCP Server 建立指引（Python SDK）
+- `prompt-engineering-guide` — Prompt 設計方法論與 description 撰寫公式
+- `changelog-generator` — Git commits → 結構化變更紀錄
+- `d3-visualization-guide` — D3.js 互動圖表與資料視覺化
+- `skill-tapestry` — 技能關聯索引與知識網路
 
 ### ArkBot（產出的 Agent 範例）
 - Telegram Bot + Web 對話介面（三層架構）

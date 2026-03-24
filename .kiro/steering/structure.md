@@ -39,7 +39,15 @@ last_synced: "2026-03-24"
 │       ├── env-smoke-test/              # 環境煙霧測試
 │       ├── skill-sync/                  # 技能同步備份
 │       ├── document-summarizer/         # 文件摘要師
-│       └── game-design-document-writer/ # 遊戲企劃文件撰寫師
+│       ├── game-design-document-writer/ # 遊戲企劃文件撰寫師
+│       ├── skill-seeker/               # 文件轉技能探索器
+│       ├── tdd-workflow/               # 測試驅動開發工作流
+│       ├── software-architecture-guide/ # 軟體架構指引
+│       ├── mcp-builder-guide/          # MCP Server 建立指引
+│       ├── prompt-engineering-guide/   # Prompt 工程指引
+│       ├── changelog-generator/        # 變更紀錄產生器
+│       ├── d3-visualization-guide/     # D3.js 視覺化指引
+│       └── skill-tapestry/             # 技能知識網路
 │
 ├── .agent/
 │   └── skills/                          # 正式環境（備份，由 skill-sync 同步）
@@ -77,6 +85,7 @@ last_synced: "2026-03-24"
 │   ├── generator-issues-report.md       # Generator 產出問題追蹤 v2.1（12 Issues + 8 Fixes）
 │   ├── arkbot-to-arkagent-design.md     # ArkAgent OS 設計願景
 │   ├── dashboard-impl.md               # 儀表板實作摘要
+│   ├── skill-seeker-spec.md            # skill-seeker Skill Spec
 │   ├── agent優化.md / agent優化-spec.md  # Agent 雙層決策架構
 │   └── arkbot優化.md / arkbot優化-spec.md # ArkBot Skill Factory 設計
 │
