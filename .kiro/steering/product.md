@@ -1,37 +1,48 @@
 ---
 inclusion: always
-# 📌 注入模式：永遠自動注入
-# 📋 用途：產品定位與核心概念，讓 AI 了解這個專案是什麼
-# ✏️ 維護：新增教學模組或功能時更新
+version: "1.0.0"
+last_synced: "2026-03-24"
 ---
 
-# 產品：AI Agent Skills Workshop（AI 代理技能工作坊）
+# 產品概述
 
-本專案是一個 AI Agent 開發教學工作坊，透過實作三大模組，展示如何利用 `.agent/skills/` 技能定義搭配 Gemini API 進行自動化內容生成。
+Google Antigravity — Agent Skills Factory。一個用於建立 AI Agent 架構與 Agent Skills 的開發、測試、打包專案。
 
-## 核心概念
+## 專案定位
 
-```
-SKILL.md（劇本）  +  Gemini API（演員）  =  自動化產出
-```
+這是一個**技能包產出工廠**，不是單一應用程式：
 
-Skills 定義 AI 的角色與規範，Gemini 負責執行生成，Python 腳本負責編排流程。
+1. 用 `skill-spec-writer` 產出技能級規格，餵給 `skill-creator`
+2. 用 `skill-creator` 建立、測試、迭代改進 Kiro Skills
+3. 用 `software-spec-writer` 產出專案級規格文件驅動開發
+4. 用 `arkbot-agent-generator` 一鍵生成完整的 AI Agent（ArkBot）專案
+5. 在 ArkBot 上部署外部產出的 Skill Package
 
-## 三大教學模組
+## 核心產出物
 
-| 模組 | 路徑 | 說明 |
-|---|---|---|
-| Agent Skills | `agent_skills/` | 鏈式 GDD 自動生成器（level-designer → character-creator → 組裝） |
-| ClawdBot | `clawdbot/` | Telegram Bot，含智慧意圖路由與爬蟲技能 |
-| Gemini Canvas | `gemini_canvas/` | FastAPI 資料儀表板，HTML 視覺化渲染 |
+### Kiro Skills（11 個）
+- `skill-creator` — 建立 / 測試 / 打包技能的元技能
+- `skill-spec-writer` — 技能級規格文件（餵給 skill-creator）
+- `software-spec-writer` — 專案級規格文件 + 任務執行計畫
+- `arkbot-agent-generator` — ArkBot Agent 專案產生器（Foundation 基礎層 ～ 完整四層架構）
+- `gemini-canvas-dashboard` — 任意 JSON → Gemini API → HTML 儀表板
+- `document-summarizer` — 長文件 → 結構化摘要 + 行動建議
+- `websearch-summarizer` — 網頁搜尋 → 結構化摘要
+- `env-setup-installer` — 環境與服務安裝引導
+- `env-smoke-test` — 環境煙霧測試
+- `skill-sync` — 技能同步備份（.kiro → .agent）
+- `game-design-document-writer` — 遊戲企劃文件（GDD + One Pager）
 
-## 技能庫
+### ArkBot（產出的 Agent 範例）
+- Telegram Bot + Web 對話介面（三層架構）
+- 意圖分類 → Skill Registry → Executor 路由
+- Skill Runtime：載入外部產出的 Skill Package 並執行
 
-`.agent/skills/` 下有 13 個技能定義，涵蓋遊戲設計、文件撰寫、行銷文案等領域。每個技能包含 `SKILL.md` 定義檔，部分附帶 `references/` 參考資料。
+### 設計文件
+- `docs/agent-arkbot-spec.md` — ArkBot 完整規格文件（四層架構：Foundation / Decision Engine / Skill Runtime / Integration）
+- `docs/arkbot-agent-generator-spec.md` — arkbot-agent-generator Skill Spec（餵給 skill-creator）
+- `docs/agent優化-spec.md` — Agent 雙層決策架構（Intent Router + Skill Resolver）
+- `docs/arkbot優化-spec.md` — ArkBot Skill Factory 自動化架構（Spec → Skill → Test → Registry → Use）
 
-## 目標受眾
-
-學習 AI Agent 開發的開發者，透過實作理解「技能定義驅動 LLM 生成」的模式。
-
----
-> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License
+## 目標使用者
+開發者，透過 Kiro IDE 使用 Skills 體系快速產出 AI Agent 與擴展技能。

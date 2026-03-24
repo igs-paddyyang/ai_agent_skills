@@ -1,71 +1,81 @@
 ---
 inclusion: always
-# 📌 注入模式：永遠自動注入
-# 📋 用途：AI 行為準則與代碼風格規範，每次對話必須載入
-# ✏️ 維護：架構決策改變時更新，日常開發不需修改
+version: "1.0.0"
+last_synced: "2026-03-24"
 ---
 
-# 行為準則（AI 協作規範）
+# AI 協作規範
 
-> **唯一來源聲明**：此檔案是 AI 行為準則的唯一權威來源。
-> `.agent/rules/` 下的原始檔供人類閱讀參考，AI 以本文件為準。
-> 專案當前進度請參閱 `memory.md`，協作 SOP 請參閱 `ai_workflow.md`。
+本專案的開發規範與行為準則，供 Kiro 環境自動注入。
 
 ---
 
-## 🧠 核心思維：Skill-First
+## 專案性質
 
-本專案的核心模式：
-
-> **SKILL.md（劇本）** + **Gemini API（演員）** + **Python 腳本（導演）**
-
-- **SKILL.md**：定義 AI 角色、產出規範、格式要求、品質檢核標準
-- **Gemini API**：接收含技能定義的 Prompt，按規範生成內容
-- **Python 腳本**：載入技能 → 組裝 Prompt → 呼叫 Gemini → 串接上下文 → 組裝產出
-
-在修改或新增任何程式碼前，先確認：這是技能定義的問題，還是腳本邏輯的問題？
+本專案是 Agent Skills Factory — 建立 AI Agent 架構與 Agent Skills 的開發專案。工作區包含：
+- `.kiro/skills/` — 研發系統（使用 Kiro IDE 開發技能，核心產出物）
+- `.agent/skills/` — 正式環境（無 Kiro IDE 時的技能部署位置 / 備份）
+- `nana_bot/` — ArkBot 範例專案（由 arkbot-generator 產出）
+- `docs/` — 設計文件與規格
 
 ---
 
-## ✍️ 代碼風格
+## Kiro Skill 開發規範
 
-### 命名規範
-| 類型 | 格式 | 範例 |
-|---|---|---|
-| Python 檔案 | `snake_case` | `gdd_generator.py` |
-| 技能目錄 | `kebab-case` | `level-designer/` |
-| 類別名稱 | `PascalCase` | `SkillLoader` |
-| 變數 / 函式 | `snake_case` | `load_skill()` |
+### 技能結構
+每個技能必須包含：
+- `SKILL.md` — 主要技能指令（YAML 前置資料 + Markdown 指令，理想 <500 行）
+- `README.md` — 技能說明文件（版本資訊表格 + 功能說明 + 使用方式 + 檔案結構 + 變更紀錄）
+- `references/` — 按需載入的詳細指南（選用）
+- `scripts/` — 可執行腳本（選用）
+- `assets/` — 範本、圖片等（選用）
 
-### Python 規範
-- Python 3.12+，遵循 PEP 8
-- 所有函數定義包含 Type Hinting
-- 所有檔案使用 UTF-8 編碼
-- 嚴禁硬編碼 API Key，一律用 `os.getenv()` 或 `.env`
+### SKILL.md 撰寫規範
+- YAML 前置資料必須包含 `name`（kebab-case，≤64 字元）和 `description`（≤1024 字元）
+- description 要「積極」觸發：同時包含功能描述和使用情境關鍵字
+- 祈使句寫作風格，解釋為什麼重要而非堆砌 MUST
+- 漸進式揭露：中繼資料 → SKILL.md 本體 → 附帶資源
 
-### `.agent/skills/` 目錄規則
-- 每個技能一個目錄：`.agent/skills/{skill-name}/`
-- 必備：`SKILL.md`（技能定義，Markdown 格式）
-- 可選：`references/`（參考資料）、`scripts/`（輔助腳本）、`examples/`（範例）
+### README.md 撰寫規範
+- 使用 `skill-creator/templates/readme.md` 範本格式
+- 必須包含：版本資訊表格、功能說明、使用方式、檔案結構、變更紀錄
+- 版本採用 Semantic Versioning（MAJOR.MINOR.PATCH）
+- 新建技能從 `0.1.0` 開始，經 eval 驗證穩定後升級為 `1.0.0`
 
 ---
 
-## 🚫 禁止事項
+## ArkBot 開發規範（產出的 Agent）
+
+### 架構模式
+- 三層架構：`arkbot_core.py` 為核心，`bot_main.py`（Telegram）和 `web_server.py`（Web）為入口
+- 意圖分類 → Skill Registry → Executor 路由
+- Skills 為純函式或薄封裝，不持有狀態
+
+### 代碼風格
+- Python 3.9+，遵循 PEP 8
+- 函數優先（非 class-based），保持簡潔
+- 每個檔案單一職責
+- 變數與函式使用 `snake_case`
+
+### 安全規範
+- 嚴禁 Hard-code 密碼或 API Key
+- SQL 查詢應使用參數化查詢
+- 日誌禁止記錄用戶 PII
+
+---
+
+## 禁止事項
 
 | 禁止 | 原因 |
 |---|---|
-| 硬編碼 API 金鑰 | 安全風險，一律用 `.env` |
-| 破壞 SKILL.md 的結構格式 | 技能定義是 Prompt 注入的來源，格式錯誤會影響生成品質 |
-| 跳過技能載入直接寫死 Prompt | 違反 Skill-First 原則，失去可替換性 |
-| 在生成內容中包含 PII | 日誌與產出禁止記錄用戶個資 |
+| 修改技能時不更新 README.md 版本號 | 版本追蹤是技能管理的基礎 |
+| SKILL.md 超過 500 行 | 超過時應拆分到 references/ |
+| description 超過 1024 字元 | Kiro 平台限制 |
+| 技能內包含惡意程式碼 | 無意外原則 |
 
 ---
 
-## 🌐 語言規範
+## 語言規範
 
-- 所有對外產出（GDD、報告）一律使用**繁體中文**
-- 代碼內的 `print` 日誌可使用英文（方便 Debug）
 - 文件與註解優先使用繁體中文
-
----
-> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License
+- 代碼內的變數名、日誌可使用英文

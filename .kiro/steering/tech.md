@@ -1,53 +1,67 @@
 ---
 inclusion: always
-# 📌 注入模式：永遠自動注入
-# 📋 用途：技術棧、套件版本與常用指令速查，避免 AI 猜測環境
-# ✏️ 維護：新增套件或指令時更新
+version: "1.0.0"
+last_synced: "2026-03-24"
 ---
 
 # 技術棧
 
-## 語言與執行環境
-- Python 3.12+（Windows 使用 `py` 載入器）
-- 無前端建置系統（gemini_canvas 的靜態 HTML 由 FastAPI 提供服務）
+## 語言
+- Python 3.9+（實際使用 3.12，透過 `py` 啟動器執行）
 
-## 主要套件
-| 套件 | 用途 | 使用模組 |
-|---|---|---|
-| `google-genai` | Gemini API（`models/gemini-2.5-flash-lite`）LLM 推理引擎 | 全部 |
-| `python-dotenv` | 環境變數載入 | 全部 |
-| `python-telegram-bot` | Telegram Bot 閘道 | clawdbot |
-| `fastapi` + `uvicorn` | Web 伺服器 | gemini_canvas |
+## Kiro Skills 開發
 
-## 環境變數（`.env`，位於專案根目錄）
-- `GOOGLE_API_KEY` — Gemini API 金鑰（必要）
-- `SKILL_PATH` — 技能定義路徑，預設 `.agent/skills`
-- `TELEGRAM_TOKEN` — Telegram Bot Token（clawdbot 用）
+| 工具 | 用途 |
+|------|------|
+| Kiro IDE | Skills 開發環境 |
+| skill-creator | 技能建立 / 測試 / 打包 |
+| skill-spec-writer | 技能級規格文件（餵給 skill-creator） |
+| software-spec-writer | 專案級規格文件產生 |
+
+## ArkBot 相關套件
+
+| 套件 | 用途 |
+|------|------|
+| FastAPI | HTTP API 框架（Web 對話介面） |
+| uvicorn | ASGI 伺服器 |
+| python-telegram-bot | Telegram Bot 入口 |
+| google-genai | Gemini API（意圖分類、儀表板） |
+| requests | HTTP 呼叫 |
+| beautifulsoup4 | 爬蟲引擎 HTML 解析 |
+| markdownify | HTML → Markdown 轉換 |
+
+
+## 設定方式
+- ArkBot 設定：`.env`（GOOGLE_API_KEY、TELEGRAM_TOKEN、WEB_PORT）
 
 ## 常用指令
 
 ```bash
-# 安裝核心套件
-py -m pip install google-genai python-dotenv
+# Kiro Skill 初始化（自動偵測路徑：.kiro/skills/ > .agent/skills/）
+python .kiro/skills/skill-creator/scripts/init_skill.py <skill-name>
 
-# 驗證 Gemini API 連通
-py agent_skills/tests/test_api.py
+# 手動指定路徑
+python .kiro/skills/skill-creator/scripts/init_skill.py <skill-name> --path .kiro/skills
+python .kiro/skills/skill-creator/scripts/init_skill.py <skill-name> --path .agent/skills
 
-# 掃描可用技能
-py agent_skills/src/loader.py
+# Kiro Skill 驗證
+python .kiro/skills/skill-creator/scripts/quick_validate.py .kiro/skills/<skill-name>
 
-# 生成 GDD（鏈式：level-designer → character-creator → 組裝）
-py agent_skills/src/gdd_generator.py "火山要塞"
+# Kiro Skill 打包
+python -m scripts.package_skill .kiro/skills/<skill-name>
 
-# GDD 品質校準（AI 審計）
-py agent_skills/tests/qa_validator.py "火山要塞"
+# Kiro Skill 同步（預設全量同步）
+python .kiro/skills/skill-sync/scripts/sync_skills.py
+python .kiro/skills/skill-sync/scripts/sync_skills.py --skills skill-creator env-smoke-test
 
-# 啟動 ClawdBot
-py clawdbot/src/bot_main.py
+# ArkBot 啟動（Web + Telegram）
+start.bat
 
-# 啟動 Gemini Canvas 伺服器
-py gemini_canvas/src/server.py
+# ArkBot 資料庫初始化
+py scripts/init_db.py
 ```
 
----
-> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License
+## 備註
+- 尚未設定測試框架（ArkBot Skill Factory 的 Test Runner 規劃中）
+- 尚未設定 linter / formatter
+- `requirements.txt` 未鎖定版本

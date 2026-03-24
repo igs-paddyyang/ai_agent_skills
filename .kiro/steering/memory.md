@@ -1,104 +1,100 @@
 ---
 inclusion: manual
-# 📌 注入模式：手動引用
-# 📋 用途：專案進度存檔點，記錄當前開發狀態與重大決策
-# 🎯 使用時機：開啟新對話視窗時，用 #File 手動餵入
-# ✏️ 維護：每次開發告一段落後更新
+version: "1.0.0"
+last_synced: "2026-03-24"
 ---
 
-> 每次開新對話視窗時，將此檔案餵給 AI，讓它立即進入狀況。
+# 專案記憶
 
----
-
-## 🗂️ 專案基本資訊
-
-- 專案名稱：AI Agent Skills Workshop（AI 代理技能工作坊）
-- 主要語言：Python 3.12+
-- AI 模型：`models/gemini-2.5-flash-lite`
-- GitHub：https://github.com/igs-paddyyang/ai_agent_skills（branch: main）
-- 最後更新：2026-03-12
+> 開新對話時，用 `#File` 手動餵入此檔案，讓 AI 立即進入狀況。
 
 ---
 
-## 📊 當前開發狀態
+## 專案基本資訊
 
-### ✅ 已完成
-- `.agent/` 目錄架構建立（rules / skills / workflows / context）
-- 3 份 rules 文件 + 3 份 context 文件
-- 13 個 `.agent/skills/` 技能定義（SKILL.md）
-- Agent Skills 模組：loader.py、gdd_generator.py、qa_validator.py、test_api.py、list_models.py、test_marketing.py
-- 產出 GDD 報告 + QA 分析報告（動態命名：GDD_{主題}_{日期}.md）
-- ClawdBot 核心模組（bot_main、intent_router、crawler_skill、format_utils）
-- Gemini Canvas 模組（server.py、index.html、data.json）
-- 教學投影片 `ai_agent_skills_workshop_slides.md`（含實作練習 3 頁、Skill 秘訣 2 頁）
-- 實戰投影片 `ai_agent_practic_slides.md`
-- `.gitignore` + Git 推送至 GitHub
-- `.kiro/steering/` 6 檔對齊本 repo 實際內容
-- `.kiro/skills/` 3 個 Kiro skill（skill-creator、slide-generator、ai-agent-generator）
-- 全部 `.md` 檔案加入著作權標註
-- 根目錄 `README.md` 建立
-- `.env.example` 環境變數範例
-- `tools/mermaid/build_diagrams.py` + `gdd_flow.mmd` → `docs/images/gdd_flow.png`
-- qa_validator.py 修正（自動搜尋 GDD、動態報告命名、移除 Antigravity 殘留）
-- list_models.py 遷移至 `google-genai` 新 API
-- marketing-pro 實作用技能已移除（僅作為投影片教學範例，由學員自行建立）
-- `.agent/` 目錄架構建立（rules / skills / workflows / context）
-- 3 份 rules 文件（gemini.md、ai_coding_standards.md、ai_coding_workflow.md）
-- 3 份 context 文件（memory.md、ai_agent.md、agent_skills.md）
-- 13 個 `.agent/skills/` 技能定義（SKILL.md）
-- Agent Skills 模組完成：loader.py、gdd_generator.py、qa_validator.py、test_api.py
-- 產出 3 份 GDD 報告（深海大冒險、火山要塞、科幻太空實驗室）+ QA 分析報告
-- ClawdBot 核心模組（bot_main、intent_router、crawler_skill、format_utils）
-- Gemini Canvas 模組（server.py、index.html、data.json）
-- 教學投影片 `ai_agent_practic_slides.md`
-- `.gitignore` 建立 + Git 推送至 GitHub
-- `.kiro/steering/` 6 檔對齊本 repo 實際內容（2026-03-12）
-- `.kiro/skills/skill-creator.md` — Kiro 技能建立器
-- `.kiro/skills/slide-generator.md` — 投影片生成器 skill
-- `.kiro/skills/ai-agent-generator.md` — AI Agent 專案生成器 skill
-- 全部 `.md` 檔案加入著作權標註（28 檔）
-- 根目錄 `README.md` 建立
-
-### ⏳ 進行中
-- ClawdBot: Telegram Bot 介面優化與 MarkdownV2 容錯
-- Gemini Canvas: 儀表板互動功能強化
-- `.agent/workflows/` 標準 SOP 建立
-
-### 📅 未來計畫
-- 整合 BigQuery 資料源
-- 自動化日度報告流程
-- Docker Multi-stage 部署優化
-- 新增更多 GDD 技能鏈（quest-designer、item-designer）
+- 專案名稱：Google Antigravity — Agent Skills Factory
+- 定位：Agent Framework 與 Agent Skills 開發、測試、打包專案
+- Python 3.12，透過 `py` 啟動器執行
+- 使用者：paddyyang
+- 最後更新：2026-03-24
 
 ---
 
-## 🛠️ Kiro Skills 清單
+## 當前開發狀態
 
-| 技能 | 路徑 | 用途 |
-|---|---|---|
-| skill-creator | `.kiro/skills/skill-creator.md` | 引導建立新的 Kiro skill |
-| slide-generator | `.kiro/skills/slide-generator.md` | 引導開發 Markdown → PPTX CLI 工具 |
-| ai-agent-generator | `.kiro/skills/ai-agent-generator.md` | 引導搭建 Bot + Web + 可插拔技能的 Agent 專案 |
+### Kiro Skills（11 個，全部含 README.md）
+- `skill-creator` v2.1.0 — 技能建立 / 測試 / 迭代改進（含 eval 框架、盲測比較、描述優化）
+- `skill-spec-writer` v0.2.0 — 技能級規格文件（餵給 skill-creator，5 階段工作流程）
+- `software-spec-writer` v1.1.0 — 軟體工程規格文件（8 章節：Part I 規格設計 5 + Part II 執行計畫 3）
+- `arkbot-agent-generator` v1.2.0 — Generator Platform：統一 CLI（generate.py）+ Manifest 驅動 + Module Registry。支援 arkbot（~37 檔）/ arkagent（~91 檔）兩種 profile，--no-compat / --dry-run / --modules 選項。v1.2.0 回寫 DataWiseBot-Agent 12 Issues + 8 Fixes 至模板（entry.py 分離入口、config.py cp950 相容、registry.py 新入口常數）
+- `gemini-canvas-dashboard` v1.0.0 — 通用儀表板（任意 JSON → Gemini API → HTML）
+- `document-summarizer` v0.1.0 — 文件摘要（一句話摘要 + 核心重點 + 行動建議）
+- `websearch-summarizer` v0.1.0 — 網頁搜尋摘要（URL / 關鍵字 → 結構化摘要）
+- `env-setup-installer` v0.1.0 — 環境與服務安裝引導（Python / 套件 / .env / Gemini / Telegram）
+- `env-smoke-test` v0.1.0 — 環境煙霧測試（Python / packages / Gemini API / Telegram，4 階段）
+- `skill-sync` v0.3.0 — 技能同步工具（預設全量同步、支援 --skills / --reverse / --dry-run）
+- `game-design-document-writer` v0.1.0 — 遊戲企劃文件（完整 GDD 10 章節 + One Pager，8 類型指南）
+
+### ArkBot 範例專案（nana_bot/）
+- Telegram Bot + Web 對話（port 2141），四層架構
+- 意圖分類 3 種：DASHBOARD > RESEARCH > CASUAL
+- 雙層決策引擎：Intent Router + Skill Resolver
+- Skill Runtime 正式化：3 個內建 Skill Package（dashboard / crawler / chat）
+- Executor 支援 async + subprocess 雙模式
+- Skill API：`GET /api/skills`、`POST /api/skill/{skill_id}`（API Key 驗證）
+- Scheduler：asyncio + croniter 排程引擎（`data/schedules.json`，3 個預設排程）
+
+### DataWiseBot Agent（DataWiseBot-Agent/）
+- ArkAgent OS 產出的範例專案（port 2142）
+- 產品：金猴爺（Golden HoYeah）監控與數據分析
+- generator-issues-report.md v2.1：12 個問題全部修正完成，已回寫至 generator 模板
+- 額外修正：cp950 編碼崩潰、儀表板意圖誤判、儀表板資料綁定
+- 報告中心：`/dashboard` 入口（日期/類型篩選、卡片 grid、備份移除功能）
+- Dashboard API：`GET /api/dashboards`、`DELETE /api/dashboards/{filename}`（備份至 archive/）
+- Skill API：`GET /api/skills`、`POST /api/skill/{skill_id}`（API Key 驗證，key: datawise-skill-api-key-2026）
+- TG 通報群：DataWiseReports（chat_id: -1003706655958，Topics: 營收監控=4, 遊戲分析=3）
+- 監控群組：告警監控（-1002838311570）、金流監控（-1001977542987）
+
+### 設計文件（docs/）
+- `generator-platform-spec.md` v1.1 — Generator Platform 統一產生器規格文件（6 Task 全部完成 ✅）
+- `arkagent-platform-spec.md` v1.1 — 平台級架構升級規格文件（11 Task 全部完成 ✅）
+- `arkagent-upgrade-spec.md` v1.1 — ArkAgent OS 升級規格文件（10 Task 全部完成 ✅）
+- `arkbot-agent-spec.md` v3.1 — ArkBot 完整規格文件（四層架構）
+- `arkbot-skill-runtime-spec.md` v1.1 — Skill Runtime 正式化（9 Task 完成）
+- `arkbot-generator-refactor-spec.md` v1.1 — 模板模組化重構（7 Task 完成）
+- `generator-issues-report.md` v2.1 — Generator 產出問題追蹤（12 Issues + 8 Fixes，全部已修正+回寫）
+- Agent 雙層決策架構 + ArkBot Skill Factory 閉環設計（設計 + 規格）
+
+### 待推進
+- ArkBot Skill Runtime 人工驗證（`arkbot-skill-runtime-spec.md` 中 ← 待人工驗證 項目）
+- nana_bot → ArkAgent OS 遷移（skill.json → skill.yaml、目錄結構重組）
+- 測試框架建立
+- linter / formatter 設定
 
 ---
 
-## 🏛️ 重大架構決策紀錄
+## 重大決策紀錄
 
 | 日期 | 決策 | 原因 |
 |---|---|---|
-| 2026-03-11 | GDD 生成採鏈式架構（level-designer → character-creator → 組裝） | 上下文傳遞讓 Boss 設計能對齊環境危險要素，邏輯一致性更高 |
-| 2026-03-11 | SKILL.md 全文注入 Prompt 作為系統指令 | 讓 Gemini 完整理解角色規範，比摘要注入品質更好 |
-| 2026-03-12 | Steering 檔案從 Nana Agent 體系重寫為本 repo 專屬 | 原內容描述的是另一個專案，造成 AI 認知錯位 |
-| 2026-03-12 | Kiro skills 採單一 `.md` 檔案格式（非 `.agent/skills/` 的目錄結構） | Kiro 原生格式，用 `#` 引用即可注入，輕量且直覺 |
-| 2026-03-12 | ai-agent-generator 採 BaseSkill + skill_loader 動態載入架構 | 可插拔設計，新增技能只需加 `.py` 檔案，無需改路由邏輯 |
+| 2026-03-23 | arkbot-agent-generator 升級至 v1.1.0（Generator Platform） | 合併兩個 generator 為統一 CLI + Manifest 驅動 + Module Registry，消除 >70% 重複 |
+| 2026-03-24 | DataWiseBot-Agent 修正回寫至 generator 模板（v1.2.0） | 確保未來產出的 ArkAgent OS 專案不再重複相同問題 |
+| 2026-03-23 | Manifest 採用純 Python dict（非 YAML） | 避免 ArkBot 模式需額外安裝 pyyaml |
+| 2026-03-20 | ArkAgent OS 採五模組架構 | Spec DSL + Agent Kernel + Memory + Tool Gateway + 多 Agent |
+| 2026-03-18 | 專案重新定位為 Agent Skills Factory | 從單一應用轉為技能包產出工廠 |
 
 ---
 
-## 💬 上次對話摘要
+## 環境備註
 
-- 2026-03-12（第三輪）：移除實作用 marketing-pro 技能目錄（由學員自行建立）、更新 memory.md 與 context/memory.md、git 提交推送。
-- 2026-03-12（第二輪）：投影片大幅優化（實作練習 3 頁、Skill 秘訣 2 頁、Mermaid 圖表、字型調整）、qa_validator.py 修正、list_models.py 遷移、.env.example 建立、test_marketing.py 建立、tools/mermaid/ 工具。
-- 2026-03-12（第一輪）：建立 ai-agent-generator skill、根目錄 README.md、更新 memory.md。
+- ArkBot 設定：`nana_bot/.env`（GOOGLE_API_KEY、TELEGRAM_TOKEN、WEB_PORT=2141）
+- Kiro Skills 研發系統：`.kiro/skills/`
+- Kiro Skills 正式環境（備份）：`.agent/skills/`
+- Skill README 範本：`.kiro/skills/skill-creator/templates/readme.md`
+- 預設 Gemini 模型：`gemini-2.5-flash`
 
 ---
-> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License
+
+## 上次對話摘要
+
+- 2026-03-24：將 DataWiseBot-Agent 12 Issues + 8 Fixes 回寫至 arkbot-agent-generator 模板（entry.py 分離 Telegram/Web 入口、config.py cp950 相容 start.bat、registry.py 新入口常數）。更新 generator-issues-report.md 至 v2.1（全部標註「已修正+回寫」）。新增附錄 C（DataWiseBot-Agent 未使用的 ArkAgent OS 功能清單）。arkbot-agent-generator 升級至 v1.2.0。

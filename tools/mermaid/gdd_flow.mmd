@@ -1,6 +1,0 @@
-graph LR
-    User(["使用者輸入主題"]) --> GDD["gdd_generator.py<br/>導演"]
-    GDD --> LD["level-designer<br/>環境設計"]
-    LD --> CC["character-creator<br/>Boss 設計"]
-    CC --> Report["reports/GDD_主題.md"]
-    LD -.->|"上下文傳遞"| CC

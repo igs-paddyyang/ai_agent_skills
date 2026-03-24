@@ -1,92 +1,108 @@
 ---
-inclusion: fileMatch
-fileMatchPattern: "agent_skills/**,clawdbot/**,gemini_canvas/**,.agent/**"
-# 📌 注入模式：條件注入（fileMatch）
-# 📋 用途：專案架構與目錄規範
-# 🎯 觸發條件：編輯教學模組或 .agent/ 下的檔案時自動載入
-# ✏️ 維護：新增模組或技能時更新
+inclusion: always
+version: "1.0.0"
+last_synced: "2026-03-24"
 ---
 
 # 專案結構
 
-## 架構：技能定義層 + 三大教學模組
-
 ```
-.agent/skills/（技能定義層）
-  ├── level-designer/SKILL.md      ← 劇本
-  └── character-creator/SKILL.md   ← 劇本
-
-agent_skills/src/gdd_generator.py  ← 導演（載入劇本 → 呼叫 Gemini → 組裝產出）
+├── .kiro/
+│   ├── steering/                        # AI 協作文件
+│   │   ├── claude.md                    # 開發規範（always）
+│   │   ├── product.md                   # 產品概述（always）
+│   │   ├── tech.md                      # 技術棧（always）
+│   │   ├── structure.md                 # 專案結構（always）
+│   │   ├── memory.md                    # 專案記憶（manual）
+│   │   └── ai_workflow.md              # 協作 SOP（manual）
+│   └── skills/                          # Kiro 技能（核心產出物）
+│       ├── skill-creator/               # 技能建立器（含 eval 測試框架）
+│       ├── software-spec-writer/        # 軟體工程規格文件撰寫師
+│       ├── arkbot-agent-generator/      # Generator Platform（統一產生器）
+│       │   ├── SKILL.md
+│       │   ├── README.md
+│       │   ├── references/              # arkbot-foundation + decision-engine + skill-runtime + arkagent-os
+│       │   ├── scripts/
+│       │   │   ├── generate.py          # 統一 CLI 入口（~80 行）
+│       │   │   ├── generator/           # Generator 核心
+│       │   │   │   ├── core.py          # Generator 類別 + create_file
+│       │   │   │   ├── manifest.py      # arkbot + arkagent profile（純 Python dict）
+│       │   │   │   └── registry.py      # MODULE_REGISTRY（19 個 gen_* 函式）
+│       │   │   ├── generate_arkbot.py   # ⚠️ deprecated thin wrapper
+│       │   │   ├── generate_arkagent.py # ⚠️ deprecated thin wrapper
+│       │   │   └── templates/           # 模板常數（14 個模組）
+│       │   └── assets/
+│       ├── gemini-canvas-dashboard/     # 通用 Gemini Canvas 儀表板
+│       ├── skill-spec-writer/           # 技能規格撰寫師
+│       ├── websearch-summarizer/        # 網頁搜尋摘要師
+│       ├── env-setup-installer/         # 環境與服務安裝
+│       ├── env-smoke-test/              # 環境煙霧測試
+│       ├── skill-sync/                  # 技能同步備份
+│       ├── document-summarizer/         # 文件摘要師
+│       └── game-design-document-writer/ # 遊戲企劃文件撰寫師
+│
+├── .agent/
+│   └── skills/                          # 正式環境（備份，由 skill-sync 同步）
+│
+├── nana_bot/                            # ArkBot 範例專案（由 arkbot-generator 產出）
+│   ├── src/                             # 核心程式碼（13 個模組）
+│   ├── skills/                          # Skill Package（dashboard / crawler / chat）
+│   ├── web/index.html                   # 對話網頁
+│   ├── data/                            # SQLite + 報告 + 排程
+│   ├── docs/                            # 測試指南
+│   ├── scripts/init_db.py
+│   ├── tests/
+│   ├── start.bat
+│   └── .env
+│
+├── DataWiseBot-Agent/                   # ArkAgent OS 範例專案（金猴爺監控）
+│   ├── src/                             # 核心程式碼
+│   ├── entry/                           # 入口（telegram_entry.py / web_entry.py / cli_entry.py）
+│   ├── skills/                          # Skill Package（dashboard / crawler / chat / notify）
+│   ├── controller/                      # MCP Controller
+│   ├── web/index.html                   # 對話網頁
+│   ├── data/                            # SQLite + 報告 + 排程
+│   ├── docs/                            # 測試指南
+│   ├── start.bat
+│   └── .env
+│
+├── docs/                                # 設計文件與規格
+│   ├── agent-arkbot-spec.md             # ArkBot 完整規格文件 v3.1
+│   ├── arkbot-agent-generator-spec.md   # arkbot-agent-generator Skill Spec
+│   ├── arkbot-generator-refactor-spec.md # 模板模組化重構規格文件
+│   ├── arkbot-skill-runtime-spec.md     # Skill Runtime 規格文件
+│   ├── arkagent-upgrade-spec.md         # ArkAgent OS 升級規格文件 v1.1（10 Task ✅）
+│   ├── arkagent-platform-spec.md        # 平台級架構升級規格文件 v1.1（11 Task ✅）
+│   ├── generator-platform-spec.md       # Generator Platform 統一產生器規格文件 v1.1（6 Task ✅）
+│   ├── generator-issues-report.md       # Generator 產出問題追蹤 v2.1（12 Issues + 8 Fixes）
+│   ├── arkbot-to-arkagent-design.md     # ArkAgent OS 設計願景
+│   ├── dashboard-impl.md               # 儀表板實作摘要
+│   ├── agent優化.md / agent優化-spec.md  # Agent 雙層決策架構
+│   └── arkbot優化.md / arkbot優化-spec.md # ArkBot Skill Factory 設計
+│
+└── README.md                            # 專案說明
 ```
 
-## 目錄結構
+## 架構模式
 
-```
-.agent/
-  context/                # 專案記憶與架構文件
-    memory.md             # 進度追蹤
-    ai_agent.md           # 系統架構規範
-    agent_skills.md       # 技能歸類標準
-  rules/                  # AI 編碼規範（被動載入）
-    gemini.md             # Agent 執行規範
-    ai_coding_standards.md # 代碼標準
-    ai_coding_workflow.md  # 工作流規範
-  skills/                 # 技能定義（13 個）
-    character-creator/    # Boss 角色設計
-    level-designer/       # 關卡環境設計
-    skill-creator/        # 建立新技能的工具
-    customer-support-agent/
-    document-summarizer/
-    email-writer/
-    market-analyzer/
-    marketing-copywriter/
-    meeting-minutes-writer/
-    presentation-writer/
-    social-media-writer/
-    sop-writer/
-    task-planner/
-  workflows/              # 標準 SOP（待建立）
+### Kiro Skills 體系（核心）
+- 每個技能為獨立目錄，包含 SKILL.md + README.md + 附帶資源
+- 技能間透過 Kiro 平台觸發，不直接互相呼叫
+- `skill-creator` 為元技能，負責建立和管理其他技能
+- 版本管理採用 Semantic Versioning
 
-agent_skills/             # 模組 1：GDD 自動生成器
-  src/
-    gdd_generator.py      # 鏈式生成器（導演）
-    loader.py             # 技能掃描器
-  tests/
-    test_api.py           # API 連通測試
-    qa_validator.py       # GDD 品質校準
-    list_models.py        # 列出可用模型
-  reports/                # GDD 產出
-  docs/                   # 規格書與實作計畫
+### ArkBot / ArkAgent OS（產出的 Agent）
+- ArkBot 模式：四層架構（Foundation / Decision Engine / Skill Runtime / Integration），~37 檔
+- ArkAgent OS 模式：平台級架構（Agent Kernel / Intent Engine / Skill Runtime / Memory System / Tool Gateway / Domain Controller / Skill Planner / API Gateway），~91 檔
+- 統一 CLI：`python generate.py <profile> <name>`，舊 generator 為 deprecated wrapper
 
-clawdbot/                 # 模組 2：Telegram Bot
-  src/
-    bot_main.py           # Bot 主程式
-    intent_router.py      # 意圖路由
-    crawler_skill.py      # 爬蟲技能
-    format_utils.py       # 格式化工具
-  scripts/
-    init_db.py            # 資料庫初始化
+### 技能開發流程
+- `.kiro/skills/` — 研發系統（使用 Kiro IDE 開發技能，skill-creator 優先在此建立）
+- `.agent/skills/` — 正式環境（無 Kiro IDE 時的技能部署位置 / 備份）
+- 使用 `skill-sync` 從 `.kiro/skills/` 同步到 `.agent/skills/`
 
-gemini_canvas/            # 模組 3：視覺化儀表板
-  src/
-    server.py             # FastAPI 伺服器
-  web/
-    index.html            # 前端頁面
-  data/
-    data.json             # 資料來源
-```
-
-## 核心慣例
-
-### 新增技能
-1. 建立 `.agent/skills/{skill-name}/SKILL.md`
-2. 可選：加入 `references/`（參考資料）、`scripts/`（輔助腳本）
-3. 在 Python 腳本中用 `load_skill("{skill-name}")` 載入並注入 Prompt
-
-### 新增教學模組
-1. 建立 `{module-name}/` 頂層目錄
-2. 子目錄遵循 `src/`、`tests/`、`docs/`、`reports/` 慣例
-3. 更新 `product.md` 的模組表格與 `structure.md` 的目錄樹
-
----
-> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License
+## 慣例
+- 技能名稱使用 kebab-case
+- 每個技能必須有 SKILL.md 和 README.md
+- 修改技能時同步更新 README.md 版本號與變更紀錄
+- 設計文件放 `docs/`，規格文件以 `-spec.md` 結尾

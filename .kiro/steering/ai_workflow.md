@@ -1,95 +1,145 @@
 ---
 inclusion: manual
-# 📌 注入模式：手動引用
-# 📋 用途：AI 協作 SOP、Steering 體系說明與維護指南
-# 🎯 使用時機：新成員加入、複習協作流程、或需要決定「該改哪份文件」時閱讀
-# ✏️ 維護：協作方式或 Steering 文件結構改變時更新
+version: "1.0.0"
+last_synced: "2026-03-24"
 ---
 
-> 這份文件說明如何有效地與 AI 助理協作開發本專案，包含 Steering 體系全貌、操作 SOP 與維護指南。
+# AI 協作工作流程
 
----
-
-## 📂 Steering 文件體系（6 檔全貌）
-
-| 文件 | 注入模式 | 角色比喻 | 核心職責 |
-|---|---|---|---|
-| `claude.md` | always | 憲法 | AI 行為準則、Skill-First 思維、代碼風格、禁止事項 |
-| `product.md` | always | 產品說明書 | 工作坊定位、三大教學模組、技能庫概述 |
-| `tech.md` | always | 工具箱清單 | 套件版本、環境變數、常用指令 |
-| `structure.md` | fileMatch | 施工藍圖 | 目錄結構、新增技能/模組的慣例 |
-| `memory.md` | manual | 存檔點 | 當前進度、架構決策紀錄、上次對話摘要 |
-| `ai_workflow.md` | manual | 新手教學 | 本文件。協作 SOP、文件維護指南、修剪規則 |
-
-### 注入模式說明
-
-- **always**：每次對話自動載入。目前 3 份（claude / product / tech）。
-- **fileMatch**：編輯符合 pattern 的檔案時自動載入。`structure.md` 在編輯 `agent_skills/`、`clawdbot/`、`gemini_canvas/`、`.agent/` 時觸發。
-- **manual**：需要時用 `#File` 手動餵入。`memory.md` 在開新對話時餵入；`ai_workflow.md` 在需要複習 SOP 時餵入。
+> 使用時機：需要複習協作流程、或新成員加入時閱讀。
 
 ---
 
-## 🔀 文件分工邊界（唯一權威來源）
+## Steering 文件總覽
 
-| 資訊類型 | 權威來源 | 不要放在 |
+| 檔案 | 注入模式 | 用途 |
 |---|---|---|
-| AI 行為準則、禁止事項 | `claude.md` | 其他文件 |
-| 代碼風格、命名規範 | `claude.md` | structure.md |
-| 產品定位、教學模組、技能庫 | `product.md` | claude.md, memory.md |
-| 套件版本、環境變數、常用指令 | `tech.md` | claude.md, structure.md |
-| 目錄結構、新增技能/模組慣例 | `structure.md` | claude.md |
-| 開發進度、已完成任務 | `memory.md` | 其他任何文件 |
-| 架構決策紀錄（為什麼這樣做） | `memory.md` | claude.md |
-| 協作流程本身 | `ai_workflow.md` | 其他文件 |
-
-> 原則：如果你不確定該改哪份文件，問自己「這個資訊是**規則**、**產品**、**技術**、**結構**、還是**進度**？」
+| `claude.md` | always | 開發規範（Skill 開發 + ArkBot 開發） |
+| `product.md` | always | 產品概述（Agent Skills Factory 定位） |
+| `tech.md` | always | 技術棧與常用指令 |
+| `structure.md` | always | 專案結構（Skills + ArkBot + docs） |
+| `memory.md` | manual | 專案進度與決策紀錄 |
+| `ai_workflow.md` | manual | 本文件，協作 SOP |
 
 ---
 
-## 🔄 標準操作流程（SOP）
+## 標準操作流程
 
-### 開始新對話時
-1. always 三件套（claude / product / tech）自動載入
-2. 用 `#File` 手動餵入 `memory.md`
+### 開始新對話
+1. `claude.md` / `product.md` / `tech.md` / `structure.md` 自動載入
+2. 如需專案進度上下文，用 `#File` 手動餵入 `memory.md`
 3. 說明本次對話目標
 
-### 開發過程中
-- 完成任務 → 更新 `memory.md`
-- 新增技能 → 更新 `structure.md`
-- 新增套件或指令 → 更新 `tech.md`
-- 新增教學模組 → 更新 `product.md` + `structure.md`
-- 改了行為準則 → 更新 `claude.md`
+### 開發 Kiro Skill 時
+- 建立新技能 → 使用 `skill-creator` 技能引導流程
+- 技能必須包含 SKILL.md + README.md
+- 完成後更新 `structure.md` 的技能清單
+- 更新 `memory.md` 的「當前開發狀態」
+
+### 修改現有 Skill 時
+- 更新 SKILL.md 內容
+- 同步更新 README.md 的版本號與變更紀錄
+- 根據改動幅度選擇 MAJOR / MINOR / PATCH
+
+### 開發 ArkBot 功能時
+- 新增 Skill → 更新 `structure.md`
+- 新增套件 → 更新 `tech.md` + `requirements.txt`
+- 架構決策 → 記錄到 `memory.md`
+
+### 撰寫設計文件時
+- 使用 `software-spec-writer` 技能產出規格文件
+- 設計文件放 `docs/`，規格文件以 `-spec.md` 結尾
+- 重大設計決策記錄到 `memory.md`
 
 ### 結束對話前
-1. 請 AI 總結本次做了什麼（1-3 句話）
+1. 總結本次對話（1-3 句話）
 2. 更新 `memory.md` 的「上次對話摘要」
-3. 確認進行中任務是否正確
 
-### 決策樹：該更新哪份文件？
+---
+
+## 決策樹：該更新哪份文件？
 
 ```
 我改了什麼？
-├── AI 行為規則 / 禁止事項 → claude.md
-├── 產品能力 / 教學模組 → product.md
-├── 套件版本 / 環境變數 / 指令 → tech.md
-├── 目錄結構 / 新增技能或模組 → structure.md
-├── 完成了任務 / 做了架構決策 → memory.md
-└── 協作流程本身改變了 → ai_workflow.md
+├── 新增 / 修改 Kiro Skill
+│   → structure.md + memory.md
+│   → 技能的 README.md（版本號 + 變更紀錄）
+├── 新增 / 修改 ArkBot 功能
+│   → structure.md
+├── 新增套件或指令
+│   → tech.md + requirements.txt
+├── 架構決策或重大變更
+│   → memory.md
+├── 開發規範或代碼風格
+│   → claude.md
+├── 產品定位或功能描述
+│   → product.md
+├── 新增設計文件
+│   → docs/ + memory.md
+└── 完成任務 / 階段性進展
+    → memory.md
 ```
 
 ---
 
-## ✂️ 修剪指南
+## Memory 修剪指南
 
-### memory.md（最常需要修剪）
-- 已完成項目超過 20 行時，濃縮為摘要
-- 「上次對話摘要」只保留最近一次
+`memory.md` 超過 80 行時：
+- 已完成的里程碑濃縮為一行摘要
+- 超過 1 個月的決策紀錄只保留結論
+- 上次對話摘要只保留最近一次
 - 已解決的問題立即刪除
 
-### always 文件（claude / product / tech）
-- token 成本最高，每份控制在 80 行以內
-- 刪除已成為常識的規則
-- 範例只保留最關鍵的
-
 ---
-> © 2026 paddyyang (paddyyang.igs.com.tw@gmail.com) | MIT License
+
+## 版本控管規則（Semantic Versioning）
+
+所有 Steering 文件與 Skill 文件統一採用 `MAJOR.MINOR.PATCH` 格式。
+
+### Steering 文件版本規則
+
+適用範圍：`.kiro/steering/*.md` 的 YAML front-matter `version` 欄位。
+
+| 版本位 | 何時遞增 | 範例場景 |
+|--------|---------|---------|
+| MAJOR | 文件定位或結構大幅重組 | 合併/拆分文件、章節架構重寫、適用範圍變更 |
+| MINOR | 新增章節、新增規則、內容擴充 | 新增「版本控管規則」章節、新增決策樹分支 |
+| PATCH | 修正錯字、調整措辭、更新數據 | 修正技能數量、更新日期、微調描述 |
+
+規則：
+- 所有 Steering 文件從 `1.0.0` 起算
+- 修改任何 Steering 文件時，同步更新 `version` 和 `last_synced`
+- MAJOR 遞增時 MINOR 和 PATCH 歸零（例：`1.2.3` → `2.0.0`）
+- MINOR 遞增時 PATCH 歸零（例：`1.2.3` → `1.3.0`）
+
+範例：
+```
+1.0.0 → 1.0.1  # 修正錯字
+1.0.1 → 1.1.0  # 新增一個章節
+1.1.0 → 2.0.0  # 文件結構大幅重組
+```
+
+### Skill 文件版本規則
+
+適用範圍：每個技能的 `README.md` 版本資訊表格。
+
+| 版本位 | 何時遞增 | 範例場景 |
+|--------|---------|---------|
+| MAJOR | 觸發條件大改、輸出格式變更、破壞性變更 | SKILL.md 指令重寫、輸入/輸出介面變更 |
+| MINOR | 新增功能、擴充場景、新增 reference | 新增模板、支援新參數、新增腳本 |
+| PATCH | 修正錯誤、調整措辭、微調模板 | 修正 bug、改善提示詞、更新範例 |
+
+規則：
+- 新建技能從 `0.1.0` 開始，經 eval 驗證穩定後升級為 `1.0.0`
+- 修改技能時必須同步更新 README.md 的版本號與變更紀錄
+- MAJOR 遞增時 MINOR 和 PATCH 歸零
+- MINOR 遞增時 PATCH 歸零
+
+範例：
+```
+0.1.0 → 0.1.1  # 修正模板錯字
+0.1.1 → 0.2.0  # 新增一個 reference 文件
+0.2.0 → 1.0.0  # eval 驗證通過，正式發布
+1.0.0 → 1.1.0  # 新增 --dry-run 參數
+1.1.0 → 2.0.0  # 輸出格式從 JSON 改為 YAML
+```
