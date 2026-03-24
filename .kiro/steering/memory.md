@@ -1,6 +1,6 @@
 ---
 inclusion: manual
-version: "1.0.0"
+version: "1.1.0"
 last_synced: "2026-03-24"
 ---
 
@@ -22,18 +22,28 @@ last_synced: "2026-03-24"
 
 ## 當前開發狀態
 
-### Kiro Skills（11 個，全部含 README.md）
+### Kiro Skills（21 個，全部含 README.md）
 - `skill-creator` v2.1.0 — 技能建立 / 測試 / 迭代改進（含 eval 框架、盲測比較、描述優化）
 - `skill-spec-writer` v0.2.0 — 技能級規格文件（餵給 skill-creator，5 階段工作流程）
 - `software-spec-writer` v1.1.0 — 軟體工程規格文件（8 章節：Part I 規格設計 5 + Part II 執行計畫 3）
 - `arkbot-agent-generator` v1.2.0 — Generator Platform：統一 CLI（generate.py）+ Manifest 驅動 + Module Registry。支援 arkbot（~37 檔）/ arkagent（~91 檔）兩種 profile，--no-compat / --dry-run / --modules 選項。v1.2.0 回寫 DataWiseBot-Agent 12 Issues + 8 Fixes 至模板（entry.py 分離入口、config.py cp950 相容、registry.py 新入口常數）
 - `gemini-canvas-dashboard` v1.0.0 — 通用儀表板（任意 JSON → Gemini API → HTML）
+- `dashboard-skill-generator` v0.1.0 — 產品級 Dashboard 產生器（JSON → DSL → Renderer → HTML）
 - `document-summarizer` v0.1.0 — 文件摘要（一句話摘要 + 核心重點 + 行動建議）
 - `websearch-summarizer` v0.1.0 — 網頁搜尋摘要（URL / 關鍵字 → 結構化摘要）
 - `env-setup-installer` v0.1.0 — 環境與服務安裝引導（Python / 套件 / .env / Gemini / Telegram）
 - `env-smoke-test` v0.1.0 — 環境煙霧測試（Python / packages / Gemini API / Telegram，4 階段）
 - `skill-sync` v0.3.0 — 技能同步工具（預設全量同步、支援 --skills / --reverse / --dry-run）
+- `skill-seeker` v0.1.0 — 文件來源自動轉換為 Kiro Skill 草稿
 - `game-design-document-writer` v0.1.0 — 遊戲企劃文件（完整 GDD 10 章節 + One Pager，8 類型指南）
+- `fish-spec-writer` v0.1.0 — 捕魚機遊戲機台規格文件
+- `tdd-workflow` v0.1.0 — TDD Red-Green-Refactor 工作流（pytest 整合、測試設計模式）
+- `software-architecture-guide` v0.1.0 — Clean Architecture / SOLID / 設計模式 / ADR 指引
+- `mcp-builder-guide` v0.1.0 — MCP Server 建立指引（Python SDK、Tool/Resource/Prompt）
+- `prompt-engineering-guide` v0.1.0 — Prompt 設計方法論（description 撰寫公式、反模式修正）
+- `changelog-generator` v0.1.0 — Git commits → 結構化 changelog（Conventional Commits 解析）
+- `d3-visualization-guide` v0.1.0 — D3.js 互動圖表（折線/長條/圓餅/散佈/樹狀圖）
+- `skill-tapestry` v0.1.0 — 技能關聯索引與知識網路（21 技能全量掃描完成）
 
 ### ArkBot 範例專案（nana_bot/）
 - Telegram Bot + Web 對話（port 2141），四層架構
@@ -68,7 +78,6 @@ last_synced: "2026-03-24"
 ### 待推進
 - ArkBot Skill Runtime 人工驗證（`arkbot-skill-runtime-spec.md` 中 ← 待人工驗證 項目）
 - nana_bot → ArkAgent OS 遷移（skill.json → skill.yaml、目錄結構重組）
-- 測試框架建立
 - linter / formatter 設定
 
 ---
@@ -79,6 +88,7 @@ last_synced: "2026-03-24"
 |---|---|---|
 | 2026-03-23 | arkbot-agent-generator 升級至 v1.1.0（Generator Platform） | 合併兩個 generator 為統一 CLI + Manifest 驅動 + Module Registry，消除 >70% 重複 |
 | 2026-03-24 | DataWiseBot-Agent 修正回寫至 generator 模板（v1.2.0） | 確保未來產出的 ArkAgent OS 專案不再重複相同問題 |
+| 2026-03-24 | Skills 體系缺口補強計畫完成（+10 技能，11→21） | 根據 awesome-claude-skills 分析，補強開發流程、開發體驗、未來擴展三層缺口 |
 | 2026-03-23 | Manifest 採用純 Python dict（非 YAML） | 避免 ArkBot 模式需額外安裝 pyyaml |
 | 2026-03-20 | ArkAgent OS 採五模組架構 | Spec DSL + Agent Kernel + Memory + Tool Gateway + 多 Agent |
 | 2026-03-18 | 專案重新定位為 Agent Skills Factory | 從單一應用轉為技能包產出工廠 |
@@ -97,4 +107,4 @@ last_synced: "2026-03-24"
 
 ## 上次對話摘要
 
-- 2026-03-24：將 DataWiseBot-Agent 12 Issues + 8 Fixes 回寫至 arkbot-agent-generator 模板（entry.py 分離 Telegram/Web 入口、config.py cp950 相容 start.bat、registry.py 新入口常數）。更新 generator-issues-report.md 至 v2.1（全部標註「已修正+回寫」）。新增附錄 C（DataWiseBot-Agent 未使用的 ArkAgent OS 功能清單）。arkbot-agent-generator 升級至 v1.2.0。
+- 2026-03-24：完成 Skills 體系缺口補強計畫全部驗證。changelog-generator git log 解析測試通過（9/12 commits）、skill-tapestry 全量關聯索引產出（21 技能）、skill-sync 全量同步完成（21/21 成功）、手動觸發測試通過（tdd-workflow + software-architecture-guide）。spec checklist 全部勾選完成。產生根目錄 README.md。

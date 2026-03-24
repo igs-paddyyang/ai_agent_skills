@@ -1,0 +1,144 @@
+Role: Senior Frontend & Data Visualization Expert specializing in premium SaaS dashboards.
+Task: Create a professional, premium-looking single-file Dashboard HTML based on the provided data.
+
+=== TECHNICAL STACK (MANDATORY) ===
+- Google Fonts: Inter (weights: 300, 400, 500, 600, 700)
+- CSS: Tailwind CSS (via CDN: https://cdn.tailwindcss.com)
+- JS: Chart.js 4.x (via CDN: https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js)
+
+=== DESIGN SYSTEM (MUST FOLLOW EXACTLY) ===
+
+Theme: Light mode, clean and airy.
+- Background: #f8fafc (slate-50)
+- Cards: Glass-morphism style with these exact CSS properties:
+  ```css
+  .glass-card {
+      background: rgba(255,255,255,0.95);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(226,232,240,0.8);
+      border-radius: 1rem;
+      transition: all 0.3s ease;
+  }
+  .glass-card:hover {
+      box-shadow: 0 8px 25px -5px rgba(0,0,0,0.08);
+      transform: translateY(-1px);
+  }
+  ```
+
+Colors:
+- Primary: #2563eb (blue-600)
+- Success: #10b981 (emerald-500)
+- Warning: #f59e0b (amber-500)
+- Danger: #ef4444 (red-500)
+- Purple: #8b5cf6
+- Gray: #6b7280
+- Chart palette (in order): ['#2563eb', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#6b7280', '#ec4899', '#14b8a6']
+
+Typography:
+- Font: 'Inter', sans-serif
+- Title: text-3xl font-bold text-slate-900 tracking-tight
+- Section headers: text-lg font-bold text-slate-800
+- Body: text-sm text-slate-600
+- Labels/badges: text-xs font-bold with colored bg (e.g., bg-blue-50 text-blue-600 px-2 py-1 rounded)
+
+=== ANIMATIONS (MUST INCLUDE) ===
+```css
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.fade-in { animation: fadeIn 0.5s ease-out forwards; }
+
+@keyframes pulseRed {
+    0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.4); border-color: rgba(239,68,68,0.5); }
+    70% { box-shadow: 0 0 0 15px rgba(239,68,68,0); border-color: rgba(239,68,68,0.8); }
+    100% { box-shadow: 0 0 0 0 rgba(239,68,68,0); border-color: rgba(239,68,68,0.5); }
+}
+.pulse-red { animation: pulseRed 2s infinite; background: rgba(254,242,242,0.9) !important; }
+```
+
+=== CSS FALLBACK (MUST INCLUDE for file:// offline support) ===
+```css
+.max-w-7xl { max-width: 80rem; margin: 0 auto; }
+.space-y-6 > * + * { margin-top: 1.5rem; }
+.grid { display: grid; gap: 1.5rem; }
+.grid-cols-1 { grid-template-columns: 1fr; }
+@media (min-width: 640px) { .sm\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); } }
+@media (min-width: 1024px) {
+    .lg\:grid-cols-2 { grid-template-columns: repeat(2, 1fr); }
+    .lg\:grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
+}
+table { width: 100%; border-collapse: collapse; }
+th, td { padding: 0.75rem 1.5rem; text-align: left; }
+```
+
+=== LAYOUT RULES ===
+
+1. Wrapper: `<div class="max-w-7xl mx-auto space-y-6">` with body `class="p-4 md:p-8"`
+2. Header: Title (text-3xl font-bold) + subtitle with green dot indicator + timestamp badge (text-xs bg-slate-100 px-3 py-1.5 rounded-full)
+3. KPI Cards: `grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6`
+   - Each card: glass-card with title (text-sm font-semibold text-slate-500), value (text-2xl font-bold), trend badge
+   - Trend badge: positive → bg-emerald-50 text-emerald-600, negative → bg-rose-50 text-rose-600
+   - If a KPI has negative trend exceeding -10%, apply pulse-red animation
+4. Charts: Always in glass-card containers with section header + badge
+   - Doughnut: cutout 75%, bottom legend, usePointStyle, hoverOffset: 15
+   - Bar: borderRadius: 6, borderSkipped: false, horizontal (indexAxis: 'y') for category data
+   - Line: tension: 0.4, gradient fill using createLinearGradient
+   - Chart container: `position: relative; height: 320px; width: 100%;`
+5. Tables: glass-card wrapper, overflow-x-auto
+   - Header: bg-slate-50/50 text-slate-400 text-xs font-bold uppercase tracking-wider
+   - Rows: alternating bg-white / bg-slate-50/30, hover:bg-slate-50
+   - Status badges with color coding
+6. Footer: `text-center text-xs text-slate-400 py-4` with "© 2026 paddyyang | 金虎爺 AIBI 數據中心"
+
+=== CHART.JS CONFIGURATION PATTERNS ===
+
+For gradient fills:
+```javascript
+function createGradient(ctx, color, height) {
+    const gradient = ctx.createLinearGradient(0, 0, 0, height || 300);
+    gradient.addColorStop(0, color + '66');
+    gradient.addColorStop(1, color + '00');
+    return gradient;
+}
+```
+
+Tooltip callbacks should format numbers with toLocaleString() and show percentages where appropriate.
+Grid lines: color '#f1f5f9' for visible axis, display: false for the other.
+Axis ticks: use callback to add '$' or '%' prefix/suffix as appropriate.
+
+=== DATA ANALYSIS INSTRUCTIONS ===
+
+Analyze the provided JSON data and determine the best visualization for each section:
+- Objects with "title", "value", "trend" → KPI Cards
+- Arrays with date/time + numeric fields → Line Chart (trend)
+- Arrays with name + value → Doughnut Chart (ratio/proportion)
+- Arrays with category + numeric → Bar Chart (comparison)
+- Arrays with multiple string + numeric fields → Table
+- Single numeric values at top level → KPI Cards
+- Nested objects → Flatten and choose appropriate visualization
+
+If the data has a "title" field, use it as the dashboard title.
+
+=== CRITICAL REQUIREMENTS ===
+1. Output MUST be a single, complete, self-contained HTML file.
+2. ALL data MUST be embedded as a JavaScript const variable at the top of the script section.
+3. Do NOT use fetch() or any external API calls. The dashboard MUST work offline (except CDN).
+4. Do NOT use document.write(). Use DOM manipulation (innerHTML, createElement) in a render function.
+5. Do NOT include any markdown formatting. Output pure HTML only.
+6. The HTML must start with <!DOCTYPE html> and end with </html>.
+7. Use Chinese (繁體中文) for ALL UI labels, headers, and text.
+8. Include the CSS fallback rules for file:// offline support.
+9. Add Chart.js availability check — if Chart is undefined, show graceful fallback message in chart containers.
+10. Each section should have the fade-in class with staggered animation-delay.
+
+=== DASHBOARD INFO ===
+Dashboard Title: {title}
+
+=== DATA TO VISUALIZE ===
+```json
+{data}
+```
+
+Analyze the data structure carefully and create the most appropriate, premium-quality visualizations.
+Generate the complete HTML now.
