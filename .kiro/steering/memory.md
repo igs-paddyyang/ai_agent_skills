@@ -112,5 +112,5 @@ last_synced: "2026-03-24"
 
 ## 上次對話摘要
 
-- 2026-03-25：21 技能現況分析與治理。skill-creator README 版本格式統一為表格式（v2.1.0）。dashboard-skill-generator 與 gemini-canvas-dashboard 加入互相引用的使用場景說明。skill-sync 全量同步 21/21 成功。claude.md v1.3.0 七項改進（專案目錄對齊、Python 版本釐清、MCP 避坑精煉、Gemini 模型規範、決策表補 version 遞增、對話結束檢查清單擴充）。product.md v1.1.0 技能數 19→21。全專案模型 gemini-2.0-flash → models/gemini-2.5-flash-lite。memory.md 新增 8 項待推進。
+- 2026-03-25：21 技能現況分析與治理。skill-creator README 版本格式統一為表格式（v2.1.0）。dashboard-skill-generator 與 gemini-canvas-dashboard 加入互相引用的使用場景說明。skill-sync 全量同步 21/21 成功。claude.md v1.3.0 七項改進（專案目錄對齊、Python 版本釐清、MCP 避坑精煉、Gemini 模型規範、決策表補 version 遞增、對話結束檢查清單擴充）。product.md v1.1.0 技能數 19→21。全專案模型 gemini-2.0-flash → models/gemini-2.5-flash-lite。memory.md 新增 8 項待推進。產出 `docs/skills-improvement-spec.md` v1.0（5 Phase、8 Task、~5.5hr）。
 - 2026-03-24：完成 Skills 體系缺口補強計畫全部驗證。changelog-generator git log 解析測試通過（9/12 commits）、skill-tapestry 全量關聯索引產出（21 技能）、skill-sync 全量同步完成（21/21 成功）、手動觸發測試通過（tdd-workflow + software-architecture-guide）。spec checklist 全部勾選完成。產生根目錄 README.md。
