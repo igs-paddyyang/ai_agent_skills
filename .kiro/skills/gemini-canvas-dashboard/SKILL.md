@@ -1,6 +1,5 @@
 ---
 name: gemini-canvas-dashboard
-author: paddyyang
 description: >
   通用 Gemini Canvas 儀表板產生器。餵入任意 data.json，透過 Gemini API 自動產出專業 HTML 儀表板。
   支援 KPI 卡片、趨勢圖、佔比圖、數據表格等視覺化元件，可整合至 TigerBot 開啟。

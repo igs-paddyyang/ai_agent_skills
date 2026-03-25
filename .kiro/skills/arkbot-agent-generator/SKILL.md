@@ -1,6 +1,5 @@
 ---
 name: arkbot-agent-generator
-author: paddyyang
 description: "當使用者需要建立 ArkBot 或 ArkAgent OS 專案時，應使用此技能。支援兩種模式：ArkBot（四層架構）和 ArkAgent OS（五模組平台架構，含 Spec DSL、Memory System、Tool Gateway、多 Agent 支援）。當使用者提到 ArkBot、ArkAgent、智庫助理、網頁獵取 Bot、爬蟲 Bot、Telegram 智庫、建立 ArkBot、Agent ArkBot、ArkAgent OS、建立 Agent 專案、agent-arkbot、進階 ArkBot、多 Agent 平台時，請務必使用此技能。"
 ---
 

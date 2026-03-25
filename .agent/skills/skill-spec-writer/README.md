@@ -6,10 +6,10 @@
 
 | 欄位 | 值 |
 |------|-----|
-| 版本 | 0.2.0 |
+| 版本 | 0.2.1 |
 | 作者 | paddyyang |
 | 建立日期 | 2026-03-18 |
-| 最後更新 | 2026-03-18 |
+| 最後更新 | 2026-03-25 |
 | 平台 | Kiro |
 | 語言 | 繁體中文 |
 
@@ -51,6 +51,9 @@ skill-creator        → 消費 Spec，產出 Skill Package
 ```
 
 ## 變更紀錄
+
+### v0.2.1（2026-03-25）
+- 移除 SKILL.md frontmatter 中非預期的 `author` 屬性（通過 quick_validate 驗證）
 
 ### v0.2.0（2026-03-18）
 - 新增 `references/skill-standards.md` — 整合 Agent Skills 規範、官方與社群技能範例

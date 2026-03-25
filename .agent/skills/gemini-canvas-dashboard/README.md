@@ -6,10 +6,10 @@
 
 | 欄位 | 值 |
 |------|-----|
-| 版本 | 1.0.0 |
+| 版本 | 1.0.1 |
 | 作者 | paddyyang |
 | 建立日期 | 2026-03-17 |
-| 最後更新 | 2026-03-17 |
+| 最後更新 | 2026-03-25 |
 | 平台 | Kiro |
 | 語言 | 繁體中文 |
 
@@ -52,6 +52,10 @@ py scripts/generate_canvas.py --input data/my_data.json --output data/my_dashboa
 ```
 
 ## 變更紀錄
+
+### v1.0.1（2026-03-25）
+- 移除 SKILL.md frontmatter 中非預期的 `author` 屬性（通過 quick_validate 驗證）
+- 新增與 dashboard-skill-generator 的使用場景差異說明
 
 ### v1.0.0（2026-03-17）
 - 初始版本建立

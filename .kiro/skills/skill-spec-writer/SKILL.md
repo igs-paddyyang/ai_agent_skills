@@ -1,6 +1,5 @@
 ---
 name: skill-spec-writer
-author: paddyyang
 description: "當使用者需要為 Kiro Skill 撰寫規格文件時，應使用此技能。產出輕量的 Skill Spec，可直接作為 skill-creator 的輸入。當使用者提到技能規格、skill spec、技能設計、設計技能、規劃技能、技能需求、想做一個技能但需要先規劃時，請務必使用此技能。"
 ---
 

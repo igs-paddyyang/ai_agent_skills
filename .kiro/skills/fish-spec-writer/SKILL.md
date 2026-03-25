@@ -1,6 +1,5 @@
 ---
 name: fish-spec-writer
-author: paddyyang
 description: >
   根據捕魚機（Fish Game / Ocean King）遊戲類型，產出完整的遊戲機台規格文件。
   涵蓋魚種分值表、砲台倍率系統、特殊功能與迷你遊戲、RTP 機率分析、硬體機台規格、

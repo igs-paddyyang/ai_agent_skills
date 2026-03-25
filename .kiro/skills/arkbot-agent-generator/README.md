@@ -6,10 +6,10 @@
 
 | 欄位 | 值 |
 |------|-----|
-| 版本 | 1.9.6 |
+| 版本 | 1.9.7 |
 | 作者 | paddyyang |
 | 建立日期 | 2026-03-18 |
-| 最後更新 | 2026-03-24 |
+| 最後更新 | 2026-03-25 |
 | 平台 | Kiro |
 | 語言 | 繁體中文 |
 
@@ -296,6 +296,9 @@ arkbot 產出一個完整可執行的 Agent（entry/ → src/ → controller/ + 
 ```
 
 ## 變更紀錄
+
+### v1.9.7（2026-03-25）
+- 移除 SKILL.md frontmatter 中非預期的 `author` 屬性（通過 quick_validate 驗證）
 
 ### v1.9.6（2026-03-24）
 - 清理 deprecated wrapper：刪除 `generate_arkbot.py` + `generate_arkagent.py`（已由 `generate.py` 統一取代）
