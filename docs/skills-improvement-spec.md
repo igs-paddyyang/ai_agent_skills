@@ -221,9 +221,9 @@ Phase 5: CI 自動化
 | 3 | dashboard 兩技能無交叉引用 | ✅ 已修正 | 互相加入使用場景差異說明 |
 | 4 | 13 個技能停在 v0.1.0 | ✅ 已修正 | 全部通過 quick_validate，版本升至 v0.x.1 |
 | 5 | 知識指南類觸發頻率不明 | ✅ 已評估 | 維持獨立，不合併（docs/guide-skills-evaluation.md） |
-| 6 | fish-spec-writer 過度特化 | ⏳ 待處理 | Phase 3 泛化 |
-| 7 | 無測試執行能力 | ⏳ 待處理 | Phase 4 補強 |
-| 8 | 無 CI 自動化 | ⏳ 待處理 | Phase 5 建立 |
+| 6 | fish-spec-writer 過度特化 | ✅ 已修正 | 泛化為 game-spec-writer（支援捕魚機/老虎機/棋牌） |
+| 7 | 無測試執行能力 | ✅ 已修正 | tdd-workflow 新增 scripts/run_tests.py |
+| 8 | 無 CI 自動化 | ✅ 已修正 | 新增 ci-automation 技能 + scripts/ci_local.py |
 
 ---
 
@@ -387,10 +387,10 @@ Phase 5: CI 自動化
 | 6.2 | 批次 B 成熟度提升（4 技能） | 60 min | — | ✅ 已完成 |
 | 6.3 | 批次 C 成熟度提升（6 技能） | 45 min | — | ✅ 已完成 |
 | 6.4 | 知識指南合併評估 | 30 min | 6.3 | ✅ 已完成 |
-| 6.5 | fish → game-spec-writer 泛化 | 45 min | 6.3 | ⬜ 待執行 |
-| 6.6 | tdd-workflow 測試執行補強 | 30 min | — | ⬜ 待執行 |
-| 6.7 | CI 自動化技能建立 | 45 min | 6.6 | ⬜ 待執行 |
-| 6.8 | 全量同步與文件更新 | 15 min | 6.1~6.7 | ⬜ 待執行 |
+| 6.5 | fish → game-spec-writer 泛化 | 45 min | 6.3 | ✅ 已完成 |
+| 6.6 | tdd-workflow 測試執行補強 | 30 min | — | ✅ 已完成 |
+| 6.7 | CI 自動化技能建立 | 45 min | 6.6 | ✅ 已完成 |
+| 6.8 | 全量同步與文件更新 | 15 min | 6.1~6.7 | ✅ 已完成 |
 | | **合計** | **330 min（~5.5 hr）** | | |
 
 ---

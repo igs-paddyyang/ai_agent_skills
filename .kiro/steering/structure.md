@@ -1,7 +1,7 @@
 ---
 inclusion: always
-version: "1.0.0"
-last_synced: "2026-03-24"
+version: "1.1.0"
+last_synced: "2026-03-25"
 ---
 
 # 專案結構
@@ -39,6 +39,7 @@ last_synced: "2026-03-24"
 │       ├── env-smoke-test/              # 環境煙霧測試
 │       ├── skill-sync/                  # 技能同步備份
 │       ├── document-summarizer/         # 文件摘要師
+│       ├── game-spec-writer/             # 遊戲機台規格撰寫師（捕魚機/老虎機/棋牌）
 │       ├── game-design-document-writer/ # 遊戲企劃文件撰寫師
 │       ├── skill-seeker/               # 文件轉技能探索器
 │       ├── tdd-workflow/               # 測試驅動開發工作流
@@ -47,32 +48,11 @@ last_synced: "2026-03-24"
 │       ├── prompt-engineering-guide/   # Prompt 工程指引
 │       ├── changelog-generator/        # 變更紀錄產生器
 │       ├── d3-visualization-guide/     # D3.js 視覺化指引
-│       └── skill-tapestry/             # 技能知識網路
+│       ├── skill-tapestry/             # 技能知識網路
+│       └── ci-automation/             # CI 自動化（lint + validate + sync）
 │
 ├── .agent/
 │   └── skills/                          # 正式環境（備份，由 skill-sync 同步）
-│
-├── nana_bot/                            # ArkBot 範例專案（由 arkbot-generator 產出）
-│   ├── src/                             # 核心程式碼（13 個模組）
-│   ├── skills/                          # Skill Package（dashboard / crawler / chat）
-│   ├── web/index.html                   # 對話網頁
-│   ├── data/                            # SQLite + 報告 + 排程
-│   ├── docs/                            # 測試指南
-│   ├── scripts/init_db.py
-│   ├── tests/
-│   ├── start.bat
-│   └── .env
-│
-├── DataWiseBot-Agent/                   # ArkAgent OS 範例專案（金猴爺監控）
-│   ├── src/                             # 核心程式碼
-│   ├── entry/                           # 入口（telegram_entry.py / web_entry.py / cli_entry.py）
-│   ├── skills/                          # Skill Package（dashboard / crawler / chat / notify）
-│   ├── controller/                      # MCP Controller
-│   ├── web/index.html                   # 對話網頁
-│   ├── data/                            # SQLite + 報告 + 排程
-│   ├── docs/                            # 測試指南
-│   ├── start.bat
-│   └── .env
 │
 ├── docs/                                # 設計文件與規格
 │   ├── agent-arkbot-spec.md             # ArkBot 完整規格文件 v3.1

@@ -22,7 +22,7 @@ last_synced: "2026-03-24"
 
 ## 當前開發狀態
 
-### Kiro Skills（21 個，全部含 README.md）
+### Kiro Skills（22 個，全部含 README.md）
 - `skill-creator` v2.1.0 — 技能建立 / 測試 / 迭代改進（含 eval 框架、盲測比較、描述優化）
 - `skill-spec-writer` v0.2.0 — 技能級規格文件（餵給 skill-creator，5 階段工作流程）
 - `software-spec-writer` v1.1.0 — 軟體工程規格文件（8 章節：Part I 規格設計 5 + Part II 執行計畫 3）
@@ -36,14 +36,15 @@ last_synced: "2026-03-24"
 - `skill-sync` v0.3.0 — 技能同步工具（預設全量同步、支援 --skills / --reverse / --dry-run）
 - `skill-seeker` v0.1.0 — 文件來源自動轉換為 Kiro Skill 草稿
 - `game-design-document-writer` v0.1.0 — 遊戲企劃文件（完整 GDD 10 章節 + One Pager，8 類型指南）
-- `fish-spec-writer` v0.1.0 — 捕魚機遊戲機台規格文件
-- `tdd-workflow` v0.1.0 — TDD Red-Green-Refactor 工作流（pytest 整合、測試設計模式）
+- `fish-spec-writer` v0.1.0 → `game-spec-writer` v0.2.0 — 泛化為通用遊戲機台規格（捕魚機/老虎機/棋牌）
+- `tdd-workflow` v0.2.0 — TDD Red-Green-Refactor 工作流（pytest 整合、測試設計模式、新增 run_tests.py）
 - `software-architecture-guide` v0.1.0 — Clean Architecture / SOLID / 設計模式 / ADR 指引
 - `mcp-builder-guide` v0.1.0 — MCP Server 建立指引（Python SDK、Tool/Resource/Prompt）
 - `prompt-engineering-guide` v0.1.0 — Prompt 設計方法論（description 撰寫公式、反模式修正）
 - `changelog-generator` v0.1.0 — Git commits → 結構化 changelog（Conventional Commits 解析）
 - `d3-visualization-guide` v0.1.0 — D3.js 互動圖表（折線/長條/圓餅/散佈/樹狀圖）
 - `skill-tapestry` v0.1.0 — 技能關聯索引與知識網路（21 技能全量掃描完成）
+- `ci-automation` v0.1.0 — CI 自動化（lint + validate + sync 三階段，含 ci_local.py）
 
 ### ArkBot 範例專案（nana_bot/）
 - Telegram Bot + Web 對話（port 2141），四層架構
@@ -112,5 +113,5 @@ last_synced: "2026-03-24"
 
 ## 上次對話摘要
 
-- 2026-03-25：執行 skills-improvement-spec Phase 1-2（Task 6.1-6.4）。修正 6 個技能 SKILL.md frontmatter（移除非預期 author 屬性）、安裝 pyyaml 解決 YAML folded scalar 驗證問題。21 個技能全部通過 quick_validate。17 個技能版本升級（13 個 v0.1.0→v0.1.1 + 4 個成熟技能 PATCH）。知識指南合併評估結論：維持獨立不合併。skill-sync 21/21 同步。
+- 2026-03-25：執行 skills-improvement-spec 全部 8 Task 完成。Phase 1: 22 技能全部通過 quick_validate（修正 6 個 author 屬性）、17 個版本升級。Phase 2: 知識指南評估→維持獨立。Phase 3: fish-spec-writer 泛化為 game-spec-writer（+老虎機/棋牌 references）。Phase 4: tdd-workflow 新增 run_tests.py。Phase 5: 新增 ci-automation 技能（ci_local.py 三階段 CI）。技能數 21→22。
 - 2026-03-24：完成 Skills 體系缺口補強計畫全部驗證。changelog-generator git log 解析測試通過（9/12 commits）、skill-tapestry 全量關聯索引產出（21 技能）、skill-sync 全量同步完成（21/21 成功）、手動觸發測試通過（tdd-workflow + software-architecture-guide）。spec checklist 全部勾選完成。產生根目錄 README.md。
