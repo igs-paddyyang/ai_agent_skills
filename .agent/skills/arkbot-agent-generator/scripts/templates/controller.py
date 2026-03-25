@@ -7,6 +7,28 @@ MCP_CONFIG_JSON = '''{
             "command": "npx",
             "args": ["-y", "@modelcontextprotocol/server-filesystem", "./data"],
             "disabled": false
+        },
+        "sqlite-server": {
+            "command": "uvx",
+            "args": ["mcp-server-sqlite", "--db-path", "data/brain.db"],
+            "disabled": false
+        },
+        "bigquery-server": {
+            "command": "uvx",
+            "args": ["mcp-server-bigquery", "--project", "${BIGQUERY_PROJECT_ID}", "--key-file", "${GOOGLE_APPLICATION_CREDENTIALS}", "--location", "US"],
+            "disabled": true
+        },
+        "mssql-server": {
+            "command": "uvx",
+            "args": ["--from", "mssql-mcp-server", "mssql_mcp_server"],
+            "env": {
+                "MSSQL_HOST": "${MSSQL_HOST}",
+                "MSSQL_USER": "${MSSQL_USER}",
+                "MSSQL_PASSWORD": "${MSSQL_PASSWORD}",
+                "MSSQL_DATABASE": "${MSSQL_DATABASE}",
+                "MSSQL_DRIVER": "${MSSQL_DRIVER}"
+            },
+            "disabled": true
         }
     }
 }'''
@@ -475,126 +497,377 @@ class PythonController:
 '''
 
 # ── controller/mcp_controller.py ──
-MCP_CONTROLLER_PY = '''"""MCP Controller — Model Context Protocol 連接與 tool 呼叫
+MCP_CONTROLLER_PY = '''"""MCP Controller — Model Context Protocol stdio/JSON-RPC 通訊
 
 支援操作：
-  connect    — 連接 MCP Server
-  disconnect — 斷開 MCP Server
-  call_tool  — 呼叫 MCP tool
-  list_tools — 列出可用 tools
+  connect    — 啟動 MCP Server subprocess + JSON-RPC initialize 握手
+  disconnect — 終止 MCP Server subprocess
+  call_tool  — 透過 JSON-RPC 呼叫 MCP tool
+  list_tools — 列出所有已設定的 MCP Server 和 tools
+
+通訊協定：
+  - 透過 stdin/stdout 進行 JSON-RPC 2.0 通訊
+  - 訊息格式：JSON 一行一筆（newline-delimited JSON）
+  - Server 回應可能帶 Content-Length header 或 bare JSON
 """
+import asyncio
 import json
 import logging
+import os
+import subprocess
+import threading
+import time
 from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
+MCP_PROTOCOL_VERSION = "2024-11-05"
+CONNECT_TIMEOUT = 10
+REQUEST_TIMEOUT = 30
+
+
+class MCPServerConnection:
+    """單一 MCP Server 的 stdio 連接管理"""
+
+    def __init__(self, name: str, config: dict, project_root: Path):
+        self.name = name
+        self.config = config
+        self.project_root = project_root
+        self.process: subprocess.Popen | None = None
+        self.connected = False
+        self.tools: list[dict] = []
+        self._req_id = 0
+        self._pending: dict[int, dict] = {}
+        self._reader_thread: threading.Thread | None = None
+        self._lock = threading.Lock()
+
+    def _next_id(self) -> int:
+        self._req_id += 1
+        return self._req_id
+
+    def _build_env(self) -> dict:
+        """建立 subprocess 環境變數（展開 ${VAR} 引用）"""
+        env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"
+        server_env = self.config.get("env", {})
+        for key, value in server_env.items():
+            if isinstance(value, str) and value.startswith("${") and value.endswith("}"):
+                env_var = value[2:-1]
+                env[key] = os.environ.get(env_var, "")
+            else:
+                env[key] = str(value)
+        return env
+
+    def _reader_loop(self):
+        """背景 thread：持續讀取 stdout，解析 JSON-RPC 回應並喚醒等待者"""
+        while self.process and self.process.poll() is None:
+            try:
+                line = self.process.stdout.readline()
+                if not line:
+                    break
+                line = line.strip()
+                if not line:
+                    continue
+                if line.lower().startswith("content-length:"):
+                    length = int(line.split(":")[1].strip())
+                    self.process.stdout.readline()
+                    body = self.process.stdout.read(length)
+                    try:
+                        msg = json.loads(body)
+                    except json.JSONDecodeError:
+                        continue
+                elif line.startswith("{"):
+                    try:
+                        msg = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                else:
+                    continue
+                msg_id = msg.get("id")
+                if msg_id is not None:
+                    with self._lock:
+                        pending = self._pending.get(msg_id)
+                        if pending:
+                            pending["result"] = msg
+                            pending["event"].set()
+            except Exception:
+                break
+        logger.debug(f"MCP Server \\'{self.name}\\' reader loop 結束")
+
+    def _send_request(self, method: str, params: dict = None, timeout: float = REQUEST_TIMEOUT) -> dict | None:
+        """發送 JSON-RPC request 並同步等待回應"""
+        if not self.process or not self.process.stdin:
+            return None
+        req_id = self._next_id()
+        msg = {"jsonrpc": "2.0", "method": method, "id": req_id}
+        if params is not None:
+            msg["params"] = params
+        event = threading.Event()
+        with self._lock:
+            self._pending[req_id] = {"event": event, "result": None}
+        try:
+            payload = json.dumps(msg) + "\\n"
+            self.process.stdin.write(payload)
+            self.process.stdin.flush()
+        except (BrokenPipeError, OSError) as e:
+            with self._lock:
+                self._pending.pop(req_id, None)
+            return {"error": f"寫入失敗: {e}"}
+        if event.wait(timeout=timeout):
+            with self._lock:
+                pending = self._pending.pop(req_id, {})
+            return pending.get("result")
+        else:
+            with self._lock:
+                self._pending.pop(req_id, None)
+            return {"error": f"請求超時（{timeout}s）"}
+
+    def _send_notification(self, method: str, params: dict = None):
+        """發送 JSON-RPC notification（無 id，不等回應）"""
+        if not self.process or not self.process.stdin:
+            return
+        msg = {"jsonrpc": "2.0", "method": method}
+        if params is not None:
+            msg["params"] = params
+        try:
+            payload = json.dumps(msg) + "\\n"
+            self.process.stdin.write(payload)
+            self.process.stdin.flush()
+        except (BrokenPipeError, OSError):
+            pass
+
+    def connect(self) -> dict:
+        """啟動 subprocess + JSON-RPC initialize 握手"""
+        if self.connected and self.process and self.process.poll() is None:
+            return {"success": True, "result": f"MCP Server \\'{self.name}\\' 已連接"}
+        command = self.config.get("command", "")
+        args = self.config.get("args", [])
+        cmd = [command] + args
+        try:
+            self.process = subprocess.Popen(
+                cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE, text=True, bufsize=0,
+                cwd=str(self.project_root), env=self._build_env(),
+            )
+        except FileNotFoundError:
+            return {"success": False, "error": f"指令 \\'{command}\\' 未安裝"}
+        except Exception as e:
+            return {"success": False, "error": f"啟動 MCP Server \\'{self.name}\\' 失敗: {e}"}
+        self._reader_thread = threading.Thread(target=self._reader_loop, daemon=True)
+        self._reader_thread.start()
+        time.sleep(1)
+        resp = self._send_request("initialize", {
+            "protocolVersion": MCP_PROTOCOL_VERSION,
+            "capabilities": {},
+            "clientInfo": {"name": "{name}-Agent", "version": "1.0.0"},
+        }, timeout=CONNECT_TIMEOUT)
+        if not resp or "error" in resp:
+            self.disconnect_sync()
+            err = resp.get("error", "無回應") if resp else "initialize 超時"
+            return {"success": False, "error": f"MCP Server \\'{self.name}\\' 握手失敗: {err}"}
+        self._send_notification("notifications/initialized")
+        server_info = resp.get("result", {}).get("serverInfo", {})
+        self.connected = True
+        logger.info(f"MCP Server \\'{self.name}\\' 已連接: {server_info.get(\\'name\\', \\'?\\')} v{server_info.get(\\'version\\', \\'?\\')}")
+        self._fetch_tools()
+        return {"success": True, "result": f"MCP Server \\'{self.name}\\' 已連接（{len(self.tools)} tools）"}
+
+    def _fetch_tools(self):
+        """取得 MCP Server 的 tools 清單"""
+        resp = self._send_request("tools/list", {})
+        if resp and "result" in resp:
+            self.tools = resp["result"].get("tools", [])
+            logger.info(f"MCP Server \\'{self.name}\\' tools: {[t[\\'name\\'] for t in self.tools]}")
+        else:
+            logger.warning(f"MCP Server \\'{self.name}\\' 無法取得 tools 清單")
+
+    def call_tool(self, tool_name: str, arguments: dict) -> dict:
+        """呼叫 MCP tool"""
+        if not self.connected:
+            return {"success": False, "error": f"MCP Server \\'{self.name}\\' 未連接"}
+        resp = self._send_request("tools/call", {"name": tool_name, "arguments": arguments})
+        if not resp:
+            return {"success": False, "error": "MCP tool 呼叫無回應"}
+        if "error" in resp:
+            return {"success": False, "error": str(resp["error"])}
+        result = resp.get("result", {})
+        content = result.get("content", [])
+        texts = [item.get("text", "") for item in content if isinstance(item, dict) and item.get("type") == "text"]
+        output = "\\n".join(texts) if texts else json.dumps(result, ensure_ascii=False)
+        return {"success": True, "result": output}
+
+    def get_tool_names(self) -> list[str]:
+        return [t["name"] for t in self.tools]
+
+    def disconnect_sync(self):
+        """終止 subprocess"""
+        self.connected = False
+        if self.process:
+            try:
+                self.process.terminate()
+                self.process.wait(timeout=5)
+            except subprocess.TimeoutExpired:
+                self.process.kill()
+            except Exception:
+                pass
+            self.process = None
+        self.tools = []
+        logger.info(f"MCP Server \\'{self.name}\\' 已斷開")
+
 
 class MCPController:
-    """MCP Protocol 連接和 tool 呼叫（骨架實作）"""
+    """MCP Controller — 管理多個 MCP Server 連接
+
+    功能：Lazy connect、Tool name 解析、Param name 映射
+    """
+
+    TOOL_ALIASES = {
+        "query": "read_query",
+        "write": "write_query",
+        "tables": "list_tables",
+        "describe": "describe_table",
+    }
+
+    PARAM_ALIASES = {
+        "read_query": {"sql": "query"},
+        "write_query": {"sql": "query"},
+        "execute_sql": {"sql": "query"},
+        "execute-query": {"sql": "query"},
+    }
 
     def __init__(self, project_root: str):
         self.project_root = Path(project_root)
-        self.config_path = self.project_root / "config" / "mcp.json"
-        self.servers: dict = {}  # server_name → {"config": ..., "connected": bool, "tools": [...]}
-        self._load_config()
+        self.config = self._load_config()
+        self._connections: dict[str, MCPServerConnection] = {}
+        server_count = len([s for s, c in self.config.items() if not c.get("disabled")])
+        logger.info(f"MCPController 初始化：{server_count} 個啟用的 MCP Server")
 
-    def _load_config(self):
-        """載入 config/mcp.json"""
-        if not self.config_path.exists():
-            logger.warning(f"MCP 設定不存在: {self.config_path}")
-            return
-
+    def _load_config(self) -> dict:
+        config_path = self.project_root / "config" / "mcp.json"
+        if not config_path.exists():
+            logger.warning(f"MCP 設定檔不存在: {config_path}")
+            return {}
         try:
-            with open(self.config_path, "r", encoding="utf-8") as f:
-                config = json.load(f)
-            for name, server_config in config.get("mcpServers", {}).items():
-                if server_config.get("disabled", False):
-                    continue
-                self.servers[name] = {
-                    "config": server_config,
-                    "connected": False,
-                    "tools": [],
-                    "process": None,
-                }
-            logger.info(f"MCP 設定已載入: {list(self.servers.keys())}")
+            with open(config_path, "r", encoding="utf-8") as f:
+                data = json.load(f)
+            return data.get("mcpServers", {})
         except Exception as e:
-            logger.error(f"MCP 設定載入失敗: {e}")
+            logger.error(f"載入 MCP 設定失敗: {e}")
+            return {}
+
+    def _get_connection(self, server_name: str) -> MCPServerConnection | None:
+        if server_name in self._connections:
+            conn = self._connections[server_name]
+            if conn.connected and conn.process and conn.process.poll() is None:
+                return conn
+            conn.disconnect_sync()
+        server_config = self.config.get(server_name)
+        if not server_config:
+            logger.error(f"MCP Server \\'{server_name}\\' 未設定")
+            return None
+        if server_config.get("disabled"):
+            logger.warning(f"MCP Server \\'{server_name}\\' 已停用")
+            return None
+        conn = MCPServerConnection(server_name, server_config, self.project_root)
+        result = conn.connect()
+        if result.get("success"):
+            self._connections[server_name] = conn
+            return conn
+        logger.error(f"MCP Server \\'{server_name}\\' 連接失敗: {result.get(\\'error\\')}")
+        return None
+
+    def _resolve_tool_name(self, conn: MCPServerConnection, tool_name: str) -> str:
+        available = conn.get_tool_names()
+        if tool_name in available:
+            return tool_name
+        alias = self.TOOL_ALIASES.get(tool_name)
+        if alias and alias in available:
+            logger.info(f"Tool 別名解析: {tool_name} → {alias}")
+            return alias
+        for avail in available:
+            if tool_name in avail:
+                logger.info(f"Tool 模糊匹配: {tool_name} → {avail}")
+                return avail
+        logger.warning(f"Tool \\'{tool_name}\\' 在 Server 中找不到，可用: {available}")
+        return tool_name
+
+    def _resolve_params(self, tool_name: str, params: dict) -> dict:
+        mapping = self.PARAM_ALIASES.get(tool_name)
+        if not mapping:
+            return params
+        resolved = {}
+        for key, value in params.items():
+            new_key = mapping.get(key, key)
+            if new_key != key:
+                logger.info(f"Param 映射: {key} → {new_key}")
+            resolved[new_key] = value
+        return resolved
 
     async def execute(self, action: str, params: dict) -> dict:
-        """執行 MCP 操作"""
-        handlers = {
-            "connect": self._connect,
-            "disconnect": self._disconnect,
-            "call_tool": self._call_tool,
-            "list_tools": self._list_tools,
-        }
-        handler = handlers.get(action)
-        if not handler:
-            return {"success": False, "error": f"未知的 MCP 操作: {action}，可用: {list(handlers.keys())}"}
-        return await handler(params)
-
-    async def _connect(self, params: dict) -> dict:
-        """連接 MCP Server（骨架：記錄狀態，實際 stdio 連接待實作）"""
-        server_name = params.get("server")
-        if not server_name:
-            return {"success": False, "error": "缺少 server 參數"}
-
-        if server_name not in self.servers:
-            return {"success": False, "error": f"MCP Server '{server_name}' 未設定，可用: {list(self.servers.keys())}"}
-
-        # TODO: 實作 stdio subprocess 連接 + JSON-RPC 握手
-        self.servers[server_name]["connected"] = True
-        logger.warning(f"MCP Server '{server_name}' 已連接（骨架模式，實際 stdio 通訊待實作）")
-        return {"success": True, "result": f"[MCP 骨架] MCP Server '{server_name}' 已連接，實際 stdio 通訊待實作"}
-
-    async def _disconnect(self, params: dict) -> dict:
-        """斷開 MCP Server"""
-        server_name = params.get("server")
-        if not server_name:
-            return {"success": False, "error": "缺少 server 參數"}
-
-        if server_name not in self.servers:
-            return {"success": False, "error": f"MCP Server '{server_name}' 未設定"}
-
-        # TODO: 終止 subprocess
-        self.servers[server_name]["connected"] = False
-        self.servers[server_name]["tools"] = []
-        return {"success": True, "result": f"MCP Server '{server_name}' 已斷開"}
+        if action == "call_tool":
+            return await self._call_tool(params)
+        elif action == "connect":
+            return self._connect(params)
+        elif action == "disconnect":
+            return self._disconnect(params)
+        elif action == "list_tools":
+            return self._list_tools(params)
+        return {"success": False, "error": f"未知的 MCP action: {action}"}
 
     async def _call_tool(self, params: dict) -> dict:
-        """呼叫 MCP tool"""
         server_name = params.get("server")
         tool_name = params.get("tool")
         tool_params = params.get("params", {})
-
         if not server_name or not tool_name:
             return {"success": False, "error": "缺少 server 或 tool 參數"}
+        conn = self._get_connection(server_name)
+        if not conn:
+            return {"success": False, "error": f"無法連接 MCP Server \\'{server_name}\\'"}
+        resolved_tool = self._resolve_tool_name(conn, tool_name)
+        resolved_params = self._resolve_params(resolved_tool, tool_params)
+        logger.info(f"MCP call: {server_name}/{resolved_tool} params={resolved_params}")
+        loop = asyncio.get_event_loop()
+        result = await loop.run_in_executor(None, conn.call_tool, resolved_tool, resolved_params)
+        return result
 
-        if server_name not in self.servers:
-            return {"success": False, "error": f"MCP Server '{server_name}' 未設定"}
+    def _connect(self, params: dict) -> dict:
+        server_name = params.get("server")
+        if not server_name:
+            return {"success": False, "error": "缺少 server 參數"}
+        conn = self._get_connection(server_name)
+        if conn:
+            return {"success": True, "result": f"MCP Server \\'{server_name}\\' 已連接"}
+        return {"success": False, "error": f"MCP Server \\'{server_name}\\' 連接失敗"}
 
-        if not self.servers[server_name]["connected"]:
-            return {
-                "success": False,
-                "error": f"MCP Server '{server_name}' 尚未連接，請先執行 connect",
-            }
+    def _disconnect(self, params: dict) -> dict:
+        server_name = params.get("server")
+        if not server_name:
+            for conn in self._connections.values():
+                conn.disconnect_sync()
+            self._connections.clear()
+            return {"success": True, "result": "所有 MCP Server 已斷開"}
+        conn = self._connections.pop(server_name, None)
+        if conn:
+            conn.disconnect_sync()
+            return {"success": True, "result": f"MCP Server \\'{server_name}\\' 已斷開"}
+        return {"success": True, "result": f"MCP Server \\'{server_name}\\' 未連接"}
 
-        # TODO: 實作 JSON-RPC call_tool 請求
-        logger.info(f"呼叫 MCP tool: {server_name}/{tool_name} params={tool_params}")
-        return {
-            "success": True,
-            "result": f"[MCP 骨架] 已呼叫 {server_name}/{tool_name}，實際 JSON-RPC 通訊待實作",
-        }
-
-    async def _list_tools(self, params: dict) -> dict:
-        """列出所有已設定的 MCP Server 和 tools"""
+    def _list_tools(self, params: dict) -> dict:
+        server_name = params.get("server")
         result = {}
-        for name, info in self.servers.items():
-            result[name] = {
-                "connected": info["connected"],
-                "tools": info["tools"],
-                "command": info["config"].get("command", ""),
-            }
+        if server_name:
+            conn = self._get_connection(server_name)
+            if conn:
+                result[server_name] = conn.get_tool_names()
+            else:
+                return {"success": False, "error": f"MCP Server \\'{server_name}\\' 無法連接"}
+        else:
+            for name, config in self.config.items():
+                if config.get("disabled"):
+                    result[name] = "(disabled)"
+                elif name in self._connections:
+                    result[name] = self._connections[name].get_tool_names()
+                else:
+                    result[name] = "(未連接)"
         return {"success": True, "result": result}
 '''

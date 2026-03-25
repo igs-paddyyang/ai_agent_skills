@@ -23,21 +23,28 @@ from templates import (
     INTENT_ROUTER_PY, HYBRID_ROUTER_PY,
     # ── Runtime ──
     EXECUTOR_PY, SCHEDULER_PY,
+    RUNTIME_ADAPTER_INIT_PY, RUNTIME_ADAPTER_BASE_PY,
+    PYTHON_ADAPTER_PY, MCP_ADAPTER_PY, AI_ADAPTER_PY, COMPOSITE_ADAPTER_PY,
     # ── Decision ──
     SKILL_REGISTRY_PY, SKILL_RESOLVER_PY, SKILL_PROMPT_PY,
     # ── Core ──
     CORE_PY, GEMINI_CANVAS_SKILL_PY, DASHBOARD_SKILL_PY, CRAWLER_SKILL_PY, FORMAT_UTILS_PY,
     # ── Entry ──
     BOT_MAIN_PY, TELEGRAM_ENTRY_PY, WEB_SERVER_PY, WEB_ENTRY_PY, WEB_INDEX_HTML, CLI_ENTRY_PY, DASHBOARD_HUB_HTML, MAIN_PY,
-    # ── Skills JSON ──
-    SKILL_PKG_CRAWLER_JSON, SKILL_PKG_CRAWLER_PY,
-    SKILL_PKG_CHAT_JSON, SKILL_PKG_CHAT_PY,
-    SKILL_PKG_DASHBOARD_JSON, SKILL_PKG_DASHBOARD_PY,
-    SKILL_JSON_WEB_SCRAPER, SKILL_JSON_KNOWLEDGE_QA,
+    # ── Skills ──
+    SKILL_PKG_CRAWLER_PY,
+    SKILL_PKG_CHAT_PY,
+    SKILL_PKG_DASHBOARD_PY,
     # ── Skills YAML ──
     SKILL_PKG_CRAWLER_YAML, SKILL_PKG_CHAT_YAML, SKILL_PKG_DASHBOARD_YAML,
     SKILL_PKG_NOTIFY_YAML, SKILL_PKG_NOTIFY_PY,
     SKILL_PKG_CANVAS_YAML, SKILL_PKG_CANVAS_PY,
+    SKILL_PKG_DAILY_REPORT_YAML,
+    # AIBI Skill Package（MCP / AI / Composite）
+    SKILL_PKG_SQL_QUERY_YAML, SKILL_PKG_BIGQUERY_QUERY_YAML,
+    SKILL_PKG_MSSQL_QUERY_YAML,
+    SKILL_PKG_KPI_ANALYZER_YAML, SKILL_PKG_KPI_ANALYZER_PROMPT,
+    SKILL_PKG_ANOMALY_REPORT_YAML,
     # ── Sample Data ──
     SAMPLE_REVENUE_JSON, SAMPLE_SLOTS_JSON, SAMPLE_FISH_JSON,
     # ── Tests ──
@@ -100,19 +107,6 @@ def gen_src(g: "Generator"):
     g.create_file(r / "src" / "hybrid_router.py", HYBRID_ROUTER_PY)
     g.create_file(r / "src" / "executor.py", EXECUTOR_PY)
     g.create_file(r / "src" / "scheduler.py", _replace_compat(SCHEDULER_PY, "src"))
-
-
-def gen_skills_json(g: "Generator"):
-    """ArkBot skills/ — skill.json 版（含範例空殼）"""
-    r = g.root
-    g.create_file(r / "skills" / "crawler" / "skill.json", SKILL_PKG_CRAWLER_JSON)
-    g.create_file(r / "skills" / "crawler" / "skill.py", SKILL_PKG_CRAWLER_PY)
-    g.create_file(r / "skills" / "chat" / "skill.json", SKILL_PKG_CHAT_JSON)
-    g.create_file(r / "skills" / "chat" / "skill.py", SKILL_PKG_CHAT_PY)
-    g.create_file(r / "skills" / "dashboard" / "skill.json", SKILL_PKG_DASHBOARD_JSON)
-    g.create_file(r / "skills" / "dashboard" / "skill.py", SKILL_PKG_DASHBOARD_PY)
-    g.create_file(r / "skills" / "web_scraper" / "skill.json", SKILL_JSON_WEB_SCRAPER)
-    g.create_file(r / "skills" / "knowledge_qa" / "skill.json", SKILL_JSON_KNOWLEDGE_QA)
 
 
 def gen_tests_basic(g: "Generator"):
@@ -253,7 +247,7 @@ def gen_compat(g: "Generator"):
 
 
 def gen_skills_yaml(g: "Generator"):
-    """skills/ — skill.yaml 版（ArkAgent），含 notify + gemini-canvas skill"""
+    """skills/ — skill.yaml 版（ArkAgent），含 notify + gemini-canvas + AIBI skills"""
     r = g.root
     cd = _compat_dir(g)
     g.create_file(r / "skills" / "crawler" / "skill.yaml", SKILL_PKG_CRAWLER_YAML)
@@ -266,6 +260,12 @@ def gen_skills_yaml(g: "Generator"):
     g.create_file(r / "skills" / "gemini-canvas" / "skill.py", SKILL_PKG_CANVAS_PY)
     g.create_file(r / "skills" / "notify" / "skill.yaml", SKILL_PKG_NOTIFY_YAML)
     g.create_file(r / "skills" / "notify" / "skill.py", _replace_compat(SKILL_PKG_NOTIFY_PY, cd))
+    # AIBI Skills（MCP + AI）
+    g.create_file(r / "skills" / "sql-query" / "skill.yaml", SKILL_PKG_SQL_QUERY_YAML)
+    g.create_file(r / "skills" / "bigquery-query" / "skill.yaml", SKILL_PKG_BIGQUERY_QUERY_YAML)
+    g.create_file(r / "skills" / "mssql-query" / "skill.yaml", SKILL_PKG_MSSQL_QUERY_YAML)
+    g.create_file(r / "skills" / "kpi-analyzer" / "skill.yaml", SKILL_PKG_KPI_ANALYZER_YAML)
+    g.create_file(r / "skills" / "kpi-analyzer" / "prompt.txt", SKILL_PKG_KPI_ANALYZER_PROMPT)
 
 
 def gen_scripts_extra(g: "Generator"):
@@ -363,13 +363,32 @@ def gen_dashboard_engine(g: "Generator"):
                               asset_file.read_text(encoding="utf-8"))
 
 
+def gen_runtime_adapters(g: "Generator"):
+    """src/runtime/ — Runtime Adapter 模組（6 個檔案）"""
+    r = g.root
+    g.create_file(r / "src" / "runtime" / "__init__.py", RUNTIME_ADAPTER_INIT_PY)
+    g.create_file(r / "src" / "runtime" / "base.py", RUNTIME_ADAPTER_BASE_PY)
+    g.create_file(r / "src" / "runtime" / "python_adapter.py", PYTHON_ADAPTER_PY)
+    g.create_file(r / "src" / "runtime" / "mcp_adapter.py", MCP_ADAPTER_PY)
+    g.create_file(r / "src" / "runtime" / "ai_adapter.py", AI_ADAPTER_PY)
+    g.create_file(r / "src" / "runtime" / "composite_adapter.py", COMPOSITE_ADAPTER_PY)
+
+
+def gen_workflow_skills(g: "Generator"):
+    """skills/workflows/ — Composite Workflow Skill 範例"""
+    r = g.root
+    g.create_file(r / "skills" / "workflows" / "daily-report" / "skill.yaml", SKILL_PKG_DAILY_REPORT_YAML)
+    g.create_file(r / "skills" / "workflows" / "anomaly-report" / "skill.yaml", SKILL_PKG_ANOMALY_REPORT_YAML)
+
+
 # ═══ Module Registry ═══
 
 MODULE_REGISTRY: dict[str, callable] = {
     # ArkBot 專用
     "src":              gen_src,
     "dashboard_engine": gen_dashboard_engine,
-    "skills_json":      gen_skills_json,
+    "runtime_adapters": gen_runtime_adapters,
+    "workflow_skills":  gen_workflow_skills,
     "tests_basic":      gen_tests_basic,
     # ArkAgent OS 模組
     "specs":          gen_specs,

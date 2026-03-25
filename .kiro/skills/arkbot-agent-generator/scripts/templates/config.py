@@ -64,7 +64,7 @@ SCHEDULES_JSON = '''{
       "skill_id": "notify",
       "input": "data/dashboard/revenue/",
       "cron": "5 9 * * *",
-      "enabled": false,
+      "enabled": true,
       "description": "每日 09:05 發送營收通報",
       "params": {"route": "daily_revenue"}
     }

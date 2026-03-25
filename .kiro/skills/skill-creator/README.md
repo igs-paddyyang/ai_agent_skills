@@ -1,7 +1,17 @@
 # skill-creator（技能建立器）
 
-**整合版 — 結合快速建立與迭代改進的 Kiro 技能開發工具。**
-**作者**: paddyyang
+> 整合版 — 結合快速建立與迭代改進的 Kiro 技能開發工具。
+
+## 版本資訊
+
+| 欄位 | 值 |
+|------|-----|
+| 版本 | 2.1.0 |
+| 作者 | paddyyang |
+| 建立日期 | 2026-03-18 |
+| 最後更新 | 2026-03-19 |
+| 平台 | Kiro |
+| 語言 | 繁體中文 |
 
 ## 功能說明
 
@@ -166,10 +176,6 @@ python -m scripts.package_skill .kiro/skills/my-skill
 - [antigravity-awesome-skills]() — 社群版 skill-creator（視覺化快速建立流程）
 https://github.com/sickn33/antigravity-awesome-skills
 ---
-
-**版本：** 2.1.0（整合版 + README 產出與版本號管理 + 路徑自動偵測）
-**平台：** Kiro
-**語言：** 繁體中文
 
 ---
 

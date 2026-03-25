@@ -173,17 +173,31 @@ enabled: true
 # ── 範例 agent.yaml ──
 AGENT_EXAMPLE_YAML = '''type: agent
 name: default-agent
-version: 1.0.0
-description: "預設 Agent — 智庫助理，支援爬蟲研究、儀表板產生與閒聊"
+version: 1.2.0
+description: "預設 Agent — 智庫助理，支援爬蟲研究、儀表板產生、數據查詢、異常偵測、通報與閒聊"
 intents:
   - DASHBOARD
   - DASHBOARD_CANVAS
   - RESEARCH
+  - SQL_QUERY
+  - BIGQUERY
+  - MSSQL_QUERY
+  - KPI_ANALYSIS
+  - ANOMALY_DETECT
+  - NOTIFY
+  - DAILY_REPORT
   - CASUAL
 skills:
   - dashboard
   - gemini-canvas
   - crawler
+  - sql-query
+  - bigquery-query
+  - mssql-query
+  - kpi-analyzer
+  - anomaly-report
+  - notify
+  - daily-report
   - chat
 memory:
   short_term:

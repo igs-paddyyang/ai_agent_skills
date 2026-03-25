@@ -215,6 +215,11 @@ DEFAULT_INTENTS = {
     "RESEARCH": "包含網址、詢問知識、技術問題",
     "DASHBOARD": "提到儀表板、dashboard、產生圖表",
     "DASHBOARD_CANVAS": "明確要求用 AI/Gemini/Canvas 自由排版儀表板",
+    "SQL_QUERY": "查詢資料庫、SQL、查資料、SELECT",
+    "BIGQUERY": "BigQuery、BQ、大數據查詢",
+    "KPI_ANALYSIS": "分析 KPI 數據、指標分析",
+    "ANOMALY_DETECT": "異常偵測、數據波動、RTP 異常",
+    "MSSQL_QUERY": "MSSQL、SQL Server、mssql 查詢",
     "CASUAL": "閒聊、打招呼、情緒表達",
 }
 
@@ -305,6 +310,26 @@ class ArkBrain:
     def classify_intent(self, user_input: str, context: str = "") -> dict:
         """意圖分類，回傳 JSON。先用規則快速匹配，再走 Gemini。"""
         lower = user_input.lower()
+
+        # ANOMALY_DETECT 關鍵字快速路徑
+        anomaly_keywords = ["異常偵測", "異常分析", "數據波動", "rtp異常", "anomaly"]
+        if any(kw in lower for kw in anomaly_keywords):
+            return {"intent": "ANOMALY_DETECT", "url": None}
+
+        # BIGQUERY 關鍵字快速路徑
+        bq_keywords = ["bigquery", "bq查詢", "bq ", "大數據查詢"]
+        if any(kw in lower for kw in bq_keywords):
+            return {"intent": "BIGQUERY", "url": None}
+
+        # SQL_QUERY 關鍵字快速路徑
+        sql_keywords = ["select ", "查詢資料庫", "查資料庫", "sql查詢", "sql "]
+        if any(kw in lower for kw in sql_keywords):
+            return {"intent": "SQL_QUERY", "url": None}
+
+        # MSSQL_QUERY 關鍵字快速路徑
+        mssql_keywords = ["mssql", "sql server", "sqlserver"]
+        if any(kw in lower for kw in mssql_keywords):
+            return {"intent": "MSSQL_QUERY", "url": None}
 
         # DASHBOARD_CANVAS 關鍵字快速路徑（canvas / gemini 畫 / AI 畫）
         canvas_keywords = ["canvas", "gemini畫", "ai畫", "gemini dashboard", "自由排版"]

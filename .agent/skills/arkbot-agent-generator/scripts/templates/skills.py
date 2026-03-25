@@ -2,24 +2,6 @@
 
 # ── 內建 Skill Package：crawler ──
 
-SKILL_PKG_CRAWLER_JSON = '''{
-  "skill_id": "crawler",
-  "intent": "RESEARCH",
-  "description": "網頁爬取與摘要，將指定 URL 的網頁內容爬取、轉換為 Markdown 並產出結構化摘要",
-  "examples": [
-    "幫我爬取這個網頁",
-    "https://example.com",
-    "擷取這個網站的資料並摘要"
-  ],
-  "required_params": [],
-  "optional_params": ["url"],
-  "tags": ["爬蟲", "研究", "摘要", "URL", "crawl", "scraper", "research"],
-  "priority": 10,
-  "enabled": true,
-  "mode": "subprocess",
-  "author": "arkbot-agent-generator"
-}'''
-
 SKILL_PKG_CRAWLER_PY = """\"\"\"Crawler Skill — ArkBot Skill Package 入口\"\"\"
 import sys
 from pathlib import Path
@@ -49,24 +31,6 @@ if __name__ == "__main__":
 
 # ── 內建 Skill Package：chat ──
 
-SKILL_PKG_CHAT_JSON = '''{
-  "skill_id": "chat",
-  "intent": "CASUAL",
-  "description": "閒聊對話，友善自然地回應使用者的日常對話、打招呼、情緒表達",
-  "examples": [
-    "你好",
-    "今天天氣如何",
-    "謝謝你"
-  ],
-  "required_params": [],
-  "optional_params": [],
-  "tags": ["閒聊", "聊天", "chat", "casual"],
-  "priority": -1,
-  "enabled": true,
-  "mode": "subprocess",
-  "author": "arkbot-agent-generator"
-}'''
-
 SKILL_PKG_CHAT_PY = """\"\"\"Chat Skill — ArkBot Skill Package 入口\"\"\"
 import sys
 from pathlib import Path
@@ -90,26 +54,6 @@ if __name__ == "__main__":
 """
 
 # ── 內建 Skill Package：dashboard（Task 6.4 新增）──
-
-SKILL_PKG_DASHBOARD_JSON = '''{
-  "skill_id": "dashboard",
-  "intent": "DASHBOARD",
-  "description": "產生數據儀表板（營收/老虎機/魚機），讀取 JSON 資料透過 Gemini API 產出 HTML",
-  "examples": [
-    "產生營收儀表板",
-    "幫我看昨天的老虎機數據",
-    "魚機分析",
-    "產生 2026-03-18 的營收分析儀表板",
-    "幫我用 data/dashboard/sample_slots.json 產生老虎機分析儀表板"
-  ],
-  "required_params": [],
-  "optional_params": ["json_path", "date", "type"],
-  "tags": ["儀表板", "dashboard", "營收", "老虎機", "魚機", "圖表", "revenue", "slots", "fish"],
-  "priority": 10,
-  "enabled": true,
-  "mode": "async",
-  "response_type": "dashboard"
-}'''
 
 SKILL_PKG_DASHBOARD_PY = """\"\"\"Dashboard Skill — ArkBot Skill Package 入口\"\"\"
 import sys
@@ -151,42 +95,7 @@ if __name__ == "__main__":
     print(f"結果：{result}")
 """
 
-# ── 範例 skill.json（空殼，供使用者參考）──
-
-SKILL_JSON_WEB_SCRAPER = '''{
-    "skill_id": "web_scraper",
-    "intent": "RESEARCH",
-    "description": "網頁爬取與內容擷取，將指定 URL 的網頁內容轉換為結構化 Markdown 格式",
-    "examples": [
-        "幫我爬取這個網頁的內容",
-        "擷取這個網站的資料",
-        "把這個頁面轉成 Markdown"
-    ],
-    "required_params": ["url"],
-    "optional_params": ["depth"],
-    "tags": ["scraper", "crawl", "爬取", "擷取", "網頁"],
-    "priority": 80,
-    "enabled": true
-}'''
-
-SKILL_JSON_KNOWLEDGE_QA = '''{
-    "skill_id": "knowledge_qa",
-    "intent": "RESEARCH",
-    "description": "知識庫問答，從已儲存的智庫內容中搜尋並回答使用者的知識性問題",
-    "examples": [
-        "幫我查一下之前存的資料",
-        "知識庫裡有沒有相關內容",
-        "搜尋之前爬過的文章"
-    ],
-    "required_params": ["query"],
-    "optional_params": [],
-    "tags": ["知識", "查詢", "搜尋", "knowledge", "qa"],
-    "priority": 60,
-    "enabled": true
-}'''
-
-
-# ── Sample Data JSON（Task 6.4 新增）──
+# ── Sample Data JSON ──
 
 SAMPLE_REVENUE_JSON = '''{
   "title": "營收分析儀表板",
@@ -342,6 +251,7 @@ SKILL_PKG_NOTIFY_YAML = '''type: skill
 name: notify
 version: 1.0.0
 skill_id: notify
+runtime: python
 intent:
   - NOTIFY
 description: "讀取 JSON 資料，格式化為 Telegram 通報訊息並發送至指定路由"
@@ -418,6 +328,7 @@ SKILL_PKG_CRAWLER_YAML = '''type: skill
 name: crawler
 version: 1.0.0
 skill_id: crawler
+runtime: python
 intent:
   - RESEARCH
 description: "網頁爬取與摘要，將指定 URL 的網頁內容爬取、轉換為 Markdown 並產出結構化摘要"
@@ -449,6 +360,7 @@ SKILL_PKG_CHAT_YAML = '''type: skill
 name: chat
 version: 1.0.0
 skill_id: chat
+runtime: python
 intent:
   - CASUAL
 description: "閒聊對話，友善自然地回應使用者的日常對話、打招呼、情緒表達"
@@ -472,6 +384,7 @@ SKILL_PKG_DASHBOARD_YAML = '''type: skill
 name: dashboard
 version: 1.0.0
 skill_id: dashboard
+runtime: python
 intent:
   - DASHBOARD
 description: "產生數據儀表板（營收/老虎機/魚機），三層架構引擎（JSON → DSL → Renderer → HTML）"
@@ -517,6 +430,7 @@ SKILL_PKG_CANVAS_YAML = '''type: skill
 name: gemini-canvas
 version: 1.0.0
 skill_id: gemini-canvas
+runtime: python
 intent:
   - DASHBOARD_CANVAS
 description: "Gemini Canvas 儀表板 — 透過 Gemini API 直接產出 HTML（AI 自由排版，適合探索性分析）"
@@ -583,3 +497,231 @@ if __name__ == "__main__":
     result = run(test_input)
     print(f"結果：{result}")
 """
+
+
+# ═══ Composite Workflow Skill Package ═══
+
+SKILL_PKG_DAILY_REPORT_YAML = '''type: skill
+name: daily-report
+version: 1.0.0
+skill_id: daily-report
+runtime: composite
+intent:
+  - DAILY_REPORT
+description: "每日報告流程：爬取數據 → 產生儀表板 → 發送通報"
+examples:
+  - "產生每日報告"
+  - "執行日報流程"
+  - "daily report"
+composite:
+  strategy: sequential
+  steps:
+    - skill_id: crawler
+      input_template: "{user_input}"
+    - skill_id: dashboard
+      input_template: "產生營收儀表板"
+    - skill_id: notify
+      input_template: "發送今日營收通報"
+tags:
+  - 每日報告
+  - workflow
+  - daily report
+priority: 10
+enabled: true
+response_type: text
+'''
+
+
+# ═══ AIBI Skill Package（MCP / AI / Composite）═══
+
+# ── MCP Skill：sql-query（本地 SQLite 查詢）──
+
+SKILL_PKG_SQL_QUERY_YAML = '''type: skill
+name: sql-query
+version: 1.0.0
+skill_id: sql-query
+runtime: mcp
+intent:
+  - SQL_QUERY
+description: "透過 MCP 連接本地 SQLite 資料庫，執行 SQL 查詢並回傳結構化結果"
+examples:
+  - "查詢昨天的活躍玩家數"
+  - "SELECT COUNT(*) FROM daily_snapshot"
+  - "幫我查營收前 10 的遊戲"
+  - "查資料庫"
+mcp:
+  server: sqlite-server
+  tool: query
+  param_mapping:
+    sql: "{user_input}"
+tags:
+  - SQL
+  - 查詢
+  - 資料庫
+  - query
+  - database
+  - sqlite
+priority: 8
+enabled: true
+response_type: text
+'''
+
+# ── MCP Skill：bigquery-query（Google BigQuery 查詢）──
+
+SKILL_PKG_BIGQUERY_QUERY_YAML = '''type: skill
+name: bigquery-query
+version: 1.0.0
+skill_id: bigquery-query
+runtime: mcp
+intent:
+  - BIGQUERY
+description: "透過 MCP 連接 Google BigQuery，執行 SQL 查詢大數據倉儲並回傳分析結果"
+examples:
+  - "查 BigQuery 昨天的營收"
+  - "BQ 查詢活躍玩家趨勢"
+  - "從 BigQuery 撈遊戲 RTP 數據"
+  - "bigquery 查詢"
+mcp:
+  server: bigquery-server
+  tool: execute-query
+  param_mapping:
+    query: "{user_input}"
+tags:
+  - BigQuery
+  - BQ
+  - 大數據
+  - SQL
+  - query
+  - warehouse
+priority: 8
+enabled: true
+response_type: text
+'''
+
+# ── MCP Skill：mssql-query（MSSQL 查詢）──
+
+SKILL_PKG_MSSQL_QUERY_YAML = '''type: skill
+name: mssql-query
+version: 1.0.0
+skill_id: mssql-query
+runtime: mcp
+intent:
+  - MSSQL_QUERY
+description: "透過 MCP 連接 MSSQL 資料庫，執行 SQL 查詢並回傳結構化結果"
+examples:
+  - "查 MSSQL 昨天的營收"
+  - "SQL Server 查詢活躍玩家"
+  - "從 MSSQL 撈遊戲 RTP 數據"
+  - "mssql 查詢"
+mcp:
+  server: mssql-server
+  tool: execute_sql
+  param_mapping:
+    query: "{user_input}"
+tags:
+  - MSSQL
+  - SQL Server
+  - 查詢
+  - 資料庫
+  - query
+  - database
+priority: 8
+enabled: true
+response_type: text
+'''
+
+# ── AI Skill：kpi-analyzer（KPI 異常分析）──
+
+SKILL_PKG_KPI_ANALYZER_YAML = '''type: skill
+name: kpi-analyzer
+version: 1.0.0
+skill_id: kpi-analyzer
+runtime: ai
+intent:
+  - KPI_ANALYSIS
+description: "分析 KPI 數據，偵測異常波動並產出分析報告（純 AI 推理，數據由上游 Skill 或使用者提供）"
+examples:
+  - "分析這份數據有沒有異常"
+  - "KPI 有異常嗎"
+  - "幫我看這些指標"
+ai:
+  model: gemini-2.5-flash
+  prompt_file: prompt.txt
+  temperature: 0.3
+  max_tokens: 4096
+  output_format: text
+  fallback_skill: chat
+tags:
+  - KPI
+  - 分析
+  - anomaly
+  - 異常偵測
+priority: 5
+enabled: true
+response_type: text
+'''
+
+SKILL_PKG_KPI_ANALYZER_PROMPT = '''你是 AIBI 數據異常偵測專家。根據以下數據和使用者問題，分析是否存在異常。
+
+## 分析規則
+1. KPI 日環比波動超過 ±15% 視為異常
+2. RTP 偏離基準值（91%）超過 ±3% 視為異常
+3. 活躍玩家數日環比下降超過 10% 視為警告
+4. 單一國家佔比突然變化超過 20% 視為異常
+5. 毛利率（GGR%）低於 5% 視為警告，低於 0% 視為嚴重
+
+## 輸出格式（繁體中文）
+
+### 異常等級
+- 🔴 嚴重：需要立即處理
+- 🟡 警告：需要關注
+- 🟢 正常：指標在合理範圍
+
+### 異常項目
+列出具體指標名稱、當前值、基準值、偏離幅度
+
+### 可能原因
+推測 2~3 個可能原因（活動影響、系統異常、季節性波動等）
+
+### 建議行動
+具體的後續步驟（查看哪些報表、通知哪些團隊、是否需要緊急處理）
+
+## 對話記憶
+{context}
+
+## 使用者問題與數據
+{user_input}
+'''
+
+# ── Composite Workflow：anomaly-report（異常偵測流程）──
+
+SKILL_PKG_ANOMALY_REPORT_YAML = '''type: skill
+name: anomaly-report
+version: 1.0.0
+skill_id: anomaly-report
+runtime: composite
+intent:
+  - ANOMALY_DETECT
+description: "數據異常偵測流程：產生儀表板取得 KPI → AI 分析異常 → 產出報告"
+examples:
+  - "檢查昨天的數據有沒有異常"
+  - "分析營收波動"
+  - "偵測 RTP 異常"
+  - "異常偵測"
+composite:
+  strategy: sequential
+  steps:
+    - skill_id: dashboard
+      input_template: "產生營收儀表板"
+    - skill_id: kpi-analyzer
+      input_template: "根據以下儀表板產出結果，分析是否有 KPI 異常：{prev_result}"
+tags:
+  - 異常偵測
+  - anomaly
+  - 監控
+  - KPI
+  - workflow
+priority: 8
+enabled: true
+response_type: text
+'''

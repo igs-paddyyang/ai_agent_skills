@@ -17,6 +17,8 @@
 
 三層架構 Dashboard 產生器：`JSON → DSL → Renderer → HTML`
 
+> **與 `gemini-canvas-dashboard` 的差異**：本技能走 DSL 確定性路線，Renderer 為純程式碼渲染，產出穩定可控，適合產品級儀表板；`gemini-canvas-dashboard` 由 Gemini 自由排版，適合快速原型和探索性分析。需要快速產出時，請使用 `gemini-canvas-dashboard`。
+
 - Data Validator：驗證 JSON 結構、偵測資料類型、提取欄位統計
 - DSL Generator：透過 Gemini API 將資料轉換為 Dashboard DSL（或使用者直接提供）
 - DSL Validator：驗證 DSL 結構、source 路徑、欄位對應

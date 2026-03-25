@@ -16,7 +16,7 @@ last_synced: "2026-03-24"
 - 定位：Agent Framework 與 Agent Skills 開發、測試、打包專案
 - Python 3.12，透過 `py` 啟動器執行
 - 使用者：paddyyang
-- 最後更新：2026-03-24
+- 最後更新：2026-03-25
 
 ---
 
@@ -79,6 +79,11 @@ last_synced: "2026-03-24"
 - ArkBot Skill Runtime 人工驗證（`arkbot-skill-runtime-spec.md` 中 ← 待人工驗證 項目）
 - nana_bot → ArkAgent OS 遷移（skill.json → skill.yaml、目錄結構重組）
 - linter / formatter 設定
+- 13 個 v0.1.0 技能成熟度提升（佔 62%，需逐步迭代至穩定版）
+- 5 個知識指南類技能（prompt-engineering / software-architecture / mcp-builder / tdd-workflow / d3-visualization）觸發頻率評估，決定是否合併
+- fish-spec-writer 泛化評估（→ game-spec-writer，用 references/ 區分遊戲類型）
+- 測試執行能力補強（test-runner skill 或整合到 tdd-workflow）
+- 部署 / CI 自動化技能
 
 ---
 
@@ -101,10 +106,11 @@ last_synced: "2026-03-24"
 - Kiro Skills 研發系統：`.kiro/skills/`
 - Kiro Skills 正式環境（備份）：`.agent/skills/`
 - Skill README 範本：`.kiro/skills/skill-creator/templates/readme.md`
-- 預設 Gemini 模型：`gemini-2.5-flash`
+- 預設 Gemini 模型：`models/gemini-2.5-flash-lite`
 
 ---
 
 ## 上次對話摘要
 
+- 2026-03-25：21 技能現況分析與治理。skill-creator README 版本格式統一為表格式（v2.1.0）。dashboard-skill-generator 與 gemini-canvas-dashboard 加入互相引用的使用場景說明。skill-sync 全量同步 21/21 成功。claude.md v1.3.0 七項改進（專案目錄對齊、Python 版本釐清、MCP 避坑精煉、Gemini 模型規範、決策表補 version 遞增、對話結束檢查清單擴充）。product.md v1.1.0 技能數 19→21。全專案模型 gemini-2.0-flash → models/gemini-2.5-flash-lite。memory.md 新增 8 項待推進。
 - 2026-03-24：完成 Skills 體系缺口補強計畫全部驗證。changelog-generator git log 解析測試通過（9/12 commits）、skill-tapestry 全量關聯索引產出（21 技能）、skill-sync 全量同步完成（21/21 成功）、手動觸發測試通過（tdd-workflow + software-architecture-guide）。spec checklist 全部勾選完成。產生根目錄 README.md。

@@ -124,7 +124,7 @@ skill-spec-writer ──產 Spec──→ skill-creator ──產出技能──
 |------|------|
 | 語言 | Python 3.9+ |
 | IDE | Kiro IDE |
-| AI API | Google Gemini |
+| AI API | Google Gemini (`models/gemini-2.5-flash-lite`) |
 | Bot | python-telegram-bot |
 | Web | FastAPI + uvicorn |
 | 爬蟲 | requests + beautifulsoup4 |

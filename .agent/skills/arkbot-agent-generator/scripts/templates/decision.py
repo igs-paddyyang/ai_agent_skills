@@ -1,6 +1,6 @@
 """決策引擎模板 — SKILL_REGISTRY_PY, SKILL_RESOLVER_PY, SKILL_PROMPT_PY, HYBRID_ROUTER_PY"""
 
-# skill_registry.py 模板（支援 skill.json + skill.yaml + intent list 正規化）
+# skill_registry.py 模板（支援 skill.json + skill.yaml + intent list 正規化 + 二層子目錄掃描 + runtime 預設）
 SKILL_REGISTRY_PY = '''"""Skill Registry — 掃描 skills/ 目錄，載入 skill.json 或 skill.yaml metadata"""
 import json
 import logging
@@ -28,10 +28,23 @@ class SkillRegistry:
             logger.warning(f"Skill 目錄不存在：{base}")
             return
 
+        # 收集所有可能的 skill 目錄（含子目錄，如 workflows/daily-report/）
+        skill_dirs = []
         for child in sorted(base.iterdir()):
             if not child.is_dir():
                 continue
+            # 直接子目錄有 skill.json / skill.yaml → 視為 skill
+            if (child / "skill.json").exists() or (child / "skill.yaml").exists():
+                skill_dirs.append(child)
+            else:
+                # 掃描二層子目錄（如 workflows/daily-report/）
+                for grandchild in sorted(child.iterdir()):
+                    if grandchild.is_dir() and (
+                        (grandchild / "skill.json").exists() or (grandchild / "skill.yaml").exists()
+                    ):
+                        skill_dirs.append(grandchild)
 
+        for child in skill_dirs:
             meta = None
             source = None
 
@@ -78,6 +91,7 @@ class SkillRegistry:
             meta.setdefault("tags", [])
             meta.setdefault("priority", 0)
             meta.setdefault("enabled", True)
+            meta.setdefault("runtime", "python")  # v2: 預設 python runtime
             meta.setdefault("mode", meta.get("execution", {}).get("mode", "subprocess"))
             meta.setdefault("response_type", "text")
             meta["_path"] = str(child)

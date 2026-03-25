@@ -17,6 +17,8 @@
 
 接受任意結構化 JSON 資料，透過 Gemini API 自動推斷最佳視覺化方式，產出包含 Tailwind CSS + Chart.js 的獨立 HTML 儀表板。支援 KPI 卡片、趨勢圖、佔比圖、數據表格等視覺化元件。與 `market-revenue-dashboard`（專用營收報表、固定模板）不同，本技能為通用型，適用於任何數據場景。可整合至 TigerBot 透過對話觸發。
 
+> **與 `dashboard-skill-generator` 的差異**：本技能由 Gemini 自由排版，適合快速原型和探索性分析；`dashboard-skill-generator` 走 DSL 確定性路線（JSON → DSL → Renderer），適合產品級穩定輸出。需要穩定可控的儀表板時，請使用 `dashboard-skill-generator`。
+
 ## 使用方式
 
 觸發此技能的方式：

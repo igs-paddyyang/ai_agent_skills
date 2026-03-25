@@ -12,6 +12,8 @@ MANIFESTS = {
         "modules": [
             "src",
             "dashboard_engine",
+            "runtime_adapters",
+            "workflow_skills",
             "entry",
             "memory",
             "controller",
@@ -54,6 +56,8 @@ MANIFESTS = {
             "agents",
             "entry",
             "dashboard_engine",
+            "runtime_adapters",
+            "workflow_skills",
             "controller",
             "planner",
             "api_gateway",
