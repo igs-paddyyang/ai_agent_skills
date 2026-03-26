@@ -76,12 +76,12 @@ class PythonAdapter(RuntimeAdapter):
     async def run(self, skill_meta: dict, user_input: str, context: dict) -> dict:
         """根據 mode 欄位選擇 subprocess 或 async 執行"""
         skill_id = skill_meta.get("skill_id", "")
-        skill_py = self.skill_dir / skill_id / "skill.py"
+        skill_py = self._find_entry(skill_id)
 
-        if not skill_py.exists():
+        if not skill_py:
             return {
                 "success": False,
-                "error": f"Skill \\'{skill_id}\\' 缺少 skill.py 執行檔",
+                "error": f"Skill \\'{skill_id}\\' 缺少 skill.py（scripts/skill.py 或根目錄）",
             }
 
         mode = skill_meta.get("mode", "subprocess")
@@ -89,6 +89,19 @@ class PythonAdapter(RuntimeAdapter):
             return await self._execute_async(skill_id, skill_py, user_input)
         else:
             return self._execute_subprocess(skill_id, skill_py, user_input)
+
+    def _find_entry(self, skill_id: str) -> Path | None:
+        """尋找 skill.py 入口（新結構優先）"""
+        base = self.skill_dir / skill_id
+        # 新結構：scripts/skill.py
+        scripts_py = base / "scripts" / "skill.py"
+        if scripts_py.exists():
+            return scripts_py
+        # 舊結構：根目錄 skill.py
+        root_py = base / "skill.py"
+        if root_py.exists():
+            return root_py
+        return None
 
     async def _execute_async(self, skill_id: str, skill_py: Path, user_input: str) -> dict:
         """in-process 動態載入執行，支援 async run_async() 或同步 run()"""
@@ -303,12 +316,12 @@ class AIAdapter(RuntimeAdapter):
         output_format = ai_config.get("output_format", "text")
         fallback_skill = ai_config.get("fallback_skill")
 
-        # 載入 prompt 模板
-        prompt_path = self.skill_dir / skill_id / prompt_file
-        if not prompt_path.exists():
+        # 載入 prompt 模板（新結構優先）
+        prompt_path = self._find_prompt(skill_id, prompt_file)
+        if not prompt_path:
             return {
                 "success": False,
-                "error": f"Skill \\'{skill_id}\\' 的 prompt 檔案不存在：{prompt_file}",
+                "error": f"Skill \\'{skill_id}\\' 的 prompt 檔案不存在：{prompt_file}（assets/ 和根目錄皆未找到）",
             }
 
         try:
@@ -370,6 +383,19 @@ class AIAdapter(RuntimeAdapter):
                 }
 
             return {"success": False, "error": f"AI 執行失敗：{str(e)}"}
+
+    def _find_prompt(self, skill_id: str, prompt_file: str) -> Path | None:
+        """尋找 prompt 檔案（新結構優先）"""
+        base = self.skill_dir / skill_id
+        # 新結構：assets/prompt.txt
+        assets_path = base / "assets" / prompt_file
+        if assets_path.exists():
+            return assets_path
+        # 舊結構：根目錄
+        root_path = base / prompt_file
+        if root_path.exists():
+            return root_path
+        return None
 '''
 
 COMPOSITE_ADAPTER_PY = '''"""CompositeAdapter — Workflow 編排（依序執行多個 Skill）"""
@@ -663,12 +689,17 @@ class Executor:
 
 
 
-# scheduler.py 模板
-SCHEDULER_PY = '''"""ArkBot 排程引擎 — cron 定時自動執行 Skill"""
+# scheduler.py 模板（SQLite 持久化版）
+SCHEDULER_PY = '''"""ArkBot 排程引擎 — cron 定時自動執行 Skill（SQLite 持久化）
+
+last_fired 記錄存入 SQLite，重啟後不會重複觸發已執行的排程。
+"""
 import argparse
 import asyncio
 import json
 import logging
+import os
+import sqlite3
 import sys
 from datetime import datetime
 from pathlib import Path
@@ -687,12 +718,62 @@ from executor import Executor
 logging.basicConfig(
     format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
     level=logging.INFO,
+    stream=sys.stdout,
 )
 logger = logging.getLogger(__name__)
 
 SCHEDULES_PATH = PROJECT_ROOT / "data" / "schedules.json"
 LOG_PATH = PROJECT_ROOT / "data" / "scheduler.log"
 CHECK_INTERVAL = 60
+
+_db_rel = os.getenv("DATABASE_PATH", "data/brain.db")
+DB_PATH = str(PROJECT_ROOT / _db_rel) if not os.path.isabs(_db_rel) else _db_rel
+
+
+def _init_db():
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS scheduler_runs (
+            schedule_id TEXT PRIMARY KEY,
+            last_fired_at TEXT NOT NULL,
+            skill_id TEXT,
+            success INTEGER,
+            message TEXT
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+
+def _get_last_fired(schedule_id: str) -> datetime | None:
+    conn = sqlite3.connect(DB_PATH)
+    row = conn.execute(
+        "SELECT last_fired_at FROM scheduler_runs WHERE schedule_id = ?",
+        (schedule_id,)
+    ).fetchone()
+    conn.close()
+    if row and row[0]:
+        try:
+            return datetime.fromisoformat(row[0])
+        except (ValueError, TypeError):
+            return None
+    return None
+
+
+def _save_last_fired(schedule_id: str, fired_at: datetime,
+                     skill_id: str = "", success: bool = True, message: str = ""):
+    conn = sqlite3.connect(DB_PATH)
+    conn.execute("""
+        INSERT INTO scheduler_runs (schedule_id, last_fired_at, skill_id, success, message)
+        VALUES (?, ?, ?, ?, ?)
+        ON CONFLICT(schedule_id) DO UPDATE SET
+            last_fired_at = excluded.last_fired_at,
+            skill_id = excluded.skill_id,
+            success = excluded.success,
+            message = excluded.message
+    """, (schedule_id, fired_at.isoformat(), skill_id, int(success), message[:500]))
+    conn.commit()
+    conn.close()
 
 
 def load_schedules() -> list[dict]:
@@ -718,6 +799,7 @@ def write_log(schedule_id: str, skill_id: str, success: bool, message: str):
 
 
 def dry_run():
+    _init_db()
     schedules = load_schedules()
     if not schedules:
         print("[empty] 無排程設定")
@@ -725,23 +807,27 @@ def dry_run():
     now = datetime.now()
     print(f"[Scheduler] 排程列表（共 {len(schedules)} 個）\\n")
     for s in schedules:
+        sid = s["id"]
         enabled = "[ON]" if s.get("enabled", True) else "[OFF]"
         cron_expr = s.get("cron", "")
+        last = _get_last_fired(sid)
+        last_str = last.strftime("%Y-%m-%d %H:%M") if last else "(never)"
         next_time = ""
         if cron_expr:
             try:
                 it = croniter(cron_expr, now)
                 next_time = it.get_next(datetime).strftime("%Y-%m-%d %H:%M")
             except Exception:
-                next_time = "[!] cron 格式錯誤"
-        print(f"  {enabled} [{s['id']}]")
+                next_time = "[!] cron error"
+        print(f"  {enabled} [{sid}]")
         print(f"     Skill: {s['skill_id']}")
         print(f"     Cron:  {cron_expr}")
-        print(f"     下次:  {next_time}")
+        print(f"     Last:  {last_str}")
+        print(f"     Next:  {next_time}")
         print()
 
 
-async def run_schedule(executor, schedule):
+async def run_schedule(executor, schedule) -> tuple[bool, str]:
     sid = schedule["id"]
     skill_id = schedule["skill_id"]
     user_input = schedule.get("input", "")
@@ -754,16 +840,20 @@ async def run_schedule(executor, schedule):
         success = result.get("success", False)
         msg = str(result.get("result", result.get("error", "")))[:200]
         write_log(sid, skill_id, success, msg)
+        return success, msg
     except Exception as e:
-        write_log(sid, skill_id, False, f"例外：{str(e)[:200]}")
+        msg = f"exception: {str(e)[:200]}"
+        write_log(sid, skill_id, False, msg)
+        return False, msg
 
 
 async def main_loop():
+    _init_db()
     skill_dir = str(PROJECT_ROOT / "skills")
     registry = SkillRegistry(skill_dir)
     executor = Executor(registry, skill_dir)
     logger.info(f"[Scheduler] 排程引擎啟動，載入 {len(registry.skills)} 個 Skill")
-    last_fired: dict[str, datetime] = {}
+
     while True:
         schedules = load_schedules()
         now = datetime.now()
@@ -780,10 +870,11 @@ async def main_loop():
             except Exception as e:
                 logger.warning(f"排程 [{sid}] cron 解析失敗：{e}")
                 continue
-            last = last_fired.get(sid)
-            if last is None or last < prev_time:
-                last_fired[sid] = now
-                await run_schedule(executor, s)
+            last = _get_last_fired(sid)
+            if last is not None and last >= prev_time:
+                continue
+            success, msg = await run_schedule(executor, s)
+            _save_last_fired(sid, now, s.get("skill_id", ""), success, msg)
         await asyncio.sleep(CHECK_INTERVAL)
 
 

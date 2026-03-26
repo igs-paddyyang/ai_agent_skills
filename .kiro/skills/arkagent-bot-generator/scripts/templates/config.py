@@ -79,6 +79,10 @@ TELEGRAM_TOKEN=your-telegram-bot-token-here
 DATABASE_PATH=data/brain.db
 WEB_PORT=2141
 SKILL_API_KEY=your-skill-api-key-here
+GEMINI_MODEL=gemini-2.5-flash
+
+# Web 對話介面公開 URL（Telegram /start 命令會帶此連結）
+# WEB_PUBLIC_URL=https://your-tunnel-url.trycloudflare.com
 
 # 如果需要代理才能連到 Telegram API，取消下面的註解並填入你的代理地址
 # HTTPS_PROXY=http://127.0.0.1:7890
@@ -134,9 +138,19 @@ CREATE TABLE IF NOT EXISTS memories (
 )
 """)
 
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS scheduler_runs (
+    schedule_id TEXT PRIMARY KEY,
+    last_fired_at TEXT NOT NULL,
+    skill_id TEXT,
+    success INTEGER,
+    message TEXT
+)
+""")
+
 conn.commit()
 conn.close()
-print(f"✅ 資料庫已初始化：{db_path}")
+print(f"[OK] 資料庫已初始化：{db_path}")
 '''
 
 
@@ -341,6 +355,9 @@ WEB_PORT=2141
 SKILL_API_KEY=your-skill-api-key-here
 GEMINI_MODEL=gemini-2.5-flash
 
+# Web 對話介面公開 URL（Telegram /start 命令會帶此連結）
+# WEB_PUBLIC_URL=https://your-tunnel-url.trycloudflare.com
+
 # 如果需要代理才能連到 Telegram API，取消下面的註解並填入你的代理地址
 # HTTPS_PROXY=http://127.0.0.1:7890
 """
@@ -358,4 +375,18 @@ websockets>=12.0
 croniter>=1.4.0
 pyyaml>=6.0
 jsonschema>=4.20.0
+"""
+
+# Lite requirements.txt（精簡版，無 jsonschema）
+LITE_REQUIREMENTS_TXT = """python-telegram-bot>=20.0
+google-genai>=1.0.0
+requests>=2.31.0
+beautifulsoup4>=4.12.0
+markdownify>=0.11.0
+python-dotenv>=1.0.0
+fastapi>=0.110.0
+uvicorn[standard]>=0.27.0
+websockets>=12.0
+croniter>=1.4.0
+pyyaml>=6.0
 """

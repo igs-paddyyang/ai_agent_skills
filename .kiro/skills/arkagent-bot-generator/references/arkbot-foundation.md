@@ -1,6 +1,6 @@
 # Foundation Layer 實作要點
 
-本文件涵蓋 ArkBot Foundation Layer（基礎層）的實作細節。內容繼承自 `arkbot-generator` 的規格，針對 arkbot-agent-generator 的需求精煉。
+本文件涵蓋 ArkBot Foundation Layer（基礎層）的實作細節。內容繼承自 `arkbot-generator` 的規格，針對 arkagent-bot-generator 的需求精煉。
 
 ---
 

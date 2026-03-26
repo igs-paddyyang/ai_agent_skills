@@ -1,4 +1,100 @@
-"""核心層模板 — CORE_PY, INTENT_ROUTER_PY, DASHBOARD_SKILL_PY, CRAWLER_SKILL_PY, FORMAT_UTILS_PY"""
+"""核心層模板 — CORE_PY, CORE_LITE_PY, INTENT_ROUTER_PY, DASHBOARD_SKILL_PY, CRAWLER_SKILL_PY, FORMAT_UTILS_PY"""
+
+# ── Lite 版 arkbot_core.py（不依賴 hybrid_router / controller / memory / planner）──
+CORE_LITE_PY = '''"""ArkBot 核心邏輯（Lite 版）— Telegram 和 Web 共用
+
+Lite 模式：Intent Router → Skill Registry → Executor
+不含 Hybrid Router / Controller / Memory / Planner
+"""
+import json
+import sys
+import logging
+from pathlib import Path
+from typing import AsyncGenerator
+
+from dotenv import load_dotenv
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(PROJECT_ROOT))
+load_dotenv(PROJECT_ROOT / ".env")
+
+from intent_router import ArkBrain
+from skill_registry import SkillRegistry
+from executor import Executor
+
+logging.basicConfig(
+    format="%(asctime)s [%(levelname)s] %(name)s - %(message)s",
+    level=logging.INFO,
+    stream=sys.stdout,
+)
+logger = logging.getLogger(__name__)
+
+brain = ArkBrain()
+_skill_dir = str(PROJECT_ROOT / "skills")
+registry = SkillRegistry(_skill_dir)
+executor = Executor(registry, _skill_dir)
+
+logger.info(f"[ArkBot Lite] 載入 {len(registry.skills)} 個 Skill")
+
+
+async def process_message(user_input: str) -> AsyncGenerator[dict, None]:
+    """
+    Lite 流程：
+    1. Intent Router 分類意圖
+    2. 依 intent 找 Skill → Executor 執行
+    3. 無匹配 → CASUAL fallback（Gemini 閒聊）
+    """
+    yield {"type": "status", "content": "Thinking..."}
+
+    # 意圖分類
+    classify_result = brain.classify_intent(user_input)
+    intent = classify_result.get("intent", "CASUAL")
+
+    # 找匹配的 Skill
+    matched = registry.filter_by_intent(intent)
+    skill_id = matched[0]["skill_id"] if matched else None
+
+    # tag 匹配（intent 沒命中時）
+    if not skill_id:
+        lower = user_input.lower()
+        for sid, meta in registry.skills.items():
+            tags = [t.lower() for t in meta.get("tags", [])]
+            if any(t in lower for t in tags):
+                skill_id = sid
+                intent = meta.get("intent", "UNKNOWN")
+                break
+
+    logger.info(f"路由結果：intent={intent}, skill_id={skill_id}")
+
+    # CASUAL 快速路徑
+    if intent == "CASUAL" and not skill_id:
+        reply = brain.chat(user_input)
+        yield {"type": "reply", "content": reply}
+        return
+
+    # 有 Skill → 執行
+    if skill_id:
+        yield {"type": "status", "content": f"Executing {skill_id}..."}
+        result = await executor.execute(skill_id, user_input)
+        if result.get("success"):
+            meta = registry.get_skill(skill_id)
+            response_type = meta.get("response_type", "text") if meta else "text"
+            raw = result.get("result", "")
+
+            if response_type == "dashboard" and isinstance(raw, dict) and "html_path" in raw:
+                yield {"type": "dashboard", "content": raw.get("summary", ""), "html_path": raw["html_path"]}
+            else:
+                yield {"type": "reply", "content": str(raw)}
+        else:
+            logger.warning(f"Skill \\'{skill_id}\\' failed, fallback: {result.get('error')}")
+            reply = brain.chat(user_input)
+            yield {"type": "reply", "content": reply}
+        return
+
+    # 無匹配 → CASUAL
+    reply = brain.chat(user_input)
+    yield {"type": "reply", "content": reply}
+'''
 
 # arkbot_core.py 模板（整合 Hybrid Router + Executor + DomainController + Memory + Planner）
 CORE_PY = '''"""ArkBot 核心邏輯 — Telegram 和 Web 共用（整合 Hybrid Router + Executor + DomainController + Memory + Planner）"""

@@ -53,6 +53,116 @@ if __name__ == "__main__":
     print(f"結果：{run(test_input)}")
 """
 
+# ── Lite 版 Skill Package 模板 ──
+
+SKILL_PKG_DASHBOARD_LITE_PY = """\"\"\"Dashboard Skill（Lite 版）— 使用 Gemini API 產出簡易 HTML 儀表板\"\"\"
+import sys
+import os
+import json
+import logging
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "src"))
+sys.path.insert(0, str(PROJECT_ROOT))
+
+from dotenv import load_dotenv
+load_dotenv(PROJECT_ROOT / ".env")
+
+logger = logging.getLogger(__name__)
+DASHBOARD_DIR = PROJECT_ROOT / "data" / "dashboard"
+
+
+def run(user_input: str) -> str:
+    \"\"\"同步入口 — 用 Gemini 產出簡易 HTML 儀表板\"\"\"
+    from google import genai
+    from google.genai import types
+
+    client = genai.Client(api_key=os.getenv("GOOGLE_API_KEY"))
+    model = os.getenv("GEMINI_MODEL", "gemini-2.5-flash")
+
+    json_files = sorted(DASHBOARD_DIR.rglob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    data_context = ""
+    if json_files:
+        try:
+            with open(json_files[0], encoding="utf-8") as f:
+                data_context = f.read()[:3000]
+        except Exception:
+            pass
+
+    prompt = f\"\"\"根據以下資料產出一個簡潔的 HTML 儀表板頁面。
+使用內嵌 CSS，不要外部依賴。包含 KPI 卡片和簡易表格。
+
+使用者需求：{user_input}
+
+資料（JSON）：
+{data_context if data_context else '（無資料，請產出範例儀表板）'}
+\"\"\"
+
+    try:
+        resp = client.models.generate_content(
+            model=model, contents=prompt,
+            config=types.GenerateContentConfig(temperature=0.3),
+        )
+        html = resp.text or ""
+        import re
+        if html.startswith("```"):
+            html = re.sub(r"^```\\w*\\n?", "", html)
+            html = re.sub(r"\\n?```$", "", html)
+
+        from datetime import datetime
+        DASHBOARD_DIR.mkdir(parents=True, exist_ok=True)
+        ts = datetime.now().strftime("%Y-%m-%d_%H%M%S")
+        html_path = DASHBOARD_DIR / f"dashboard_{ts}.html"
+        with open(html_path, "w", encoding="utf-8") as f:
+            f.write(html)
+
+        return json.dumps({"summary": f"Dashboard generated: {html_path.name}", "html_path": str(html_path)}, ensure_ascii=False)
+    except Exception as e:
+        return json.dumps({"error": str(e)}, ensure_ascii=False)
+
+
+async def run_async(user_input: str) -> dict:
+    \"\"\"非同步入口\"\"\"
+    result = run(user_input)
+    data = json.loads(result)
+    if "error" in data:
+        return {"success": False, "error": data["error"]}
+    return {"success": True, "result": data}
+"""
+
+SKILL_PKG_NOTIFY_LITE_PY = """\"\"\"Notify Skill — 發送 TG 通報（使用 notify_skill.send_to_route）\"\"\"
+import sys
+import json as _json
+from pathlib import Path
+
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+sys.path.insert(0, str(PROJECT_ROOT / "__COMPAT_DIR__"))
+sys.path.insert(0, str(PROJECT_ROOT))
+
+
+def run(user_input: str) -> str:
+    \"\"\"同步入口\"\"\"
+    from notify_skill import send_to_route
+    route = "default"
+    message = user_input
+    if "|||" in user_input:
+        parts = user_input.split("|||", 1)
+        message = parts[0].strip()
+        try:
+            params = _json.loads(parts[1])
+            route = params.get("route", route)
+        except Exception:
+            pass
+    return send_to_route(message, route=route)
+
+
+async def run_async(user_input: str) -> dict:
+    \"\"\"非同步入口\"\"\"
+    result = run(user_input)
+    return {"success": True, "result": result}
+"""
+
 # ── 內建 Skill Package：dashboard（Task 6.4 新增）──
 
 SKILL_PKG_DASHBOARD_PY = """\"\"\"Dashboard Skill — ArkBot Skill Package 入口\"\"\"
@@ -276,12 +386,10 @@ enabled: true
 response_type: text
 '''
 
-SKILL_PKG_NOTIFY_PY = """\"\"\"Notify Skill — 讀取 JSON 並發送 Telegram 通報（骨架）
+SKILL_PKG_NOTIFY_PY = """\"\"\"Notify Skill — 讀取 JSON 並發送 Telegram 通報
 
-使用方式：
-1. 設定 config/telegram.json 的路由與群組
-2. 實作 src/notify_skill.py 的格式化與發送邏輯
-3. 透過 Scheduler 排程自動觸發，或對話中手動觸發
+依據 config/telegram.json 的路由設定，自動偵測資料類型（營收/老虎機/魚機），
+格式化為 TG 訊息並發送至指定群組/Topic。
 \"\"\"
 import sys
 import json as _json
@@ -294,16 +402,16 @@ sys.path.insert(0, str(PROJECT_ROOT))
 
 def run(user_input: str) -> str:
     \"\"\"同步入口 — Executor subprocess 模式呼叫\"\"\"
-    # TODO: 實作 notify_skill.py 後取消註解
-    # from notify_skill import send_notify
-    # import asyncio
-    # result = asyncio.run(send_notify(user_input))
-    # return result
-    return "[notify] 通報功能骨架，請實作 src/notify_skill.py"
+    import asyncio
+    from notify_skill import send_revenue_notify
+    result = asyncio.run(send_revenue_notify(user_input))
+    return result
 
 
 async def run_async(user_input: str) -> dict:
     \"\"\"非同步入口 — Executor async 模式呼叫，支援 Scheduler params\"\"\"
+    from notify_skill import send_revenue_notify
+
     route = "default"
     actual_input = user_input
 
@@ -317,11 +425,8 @@ async def run_async(user_input: str) -> dict:
         except Exception:
             pass
 
-    # TODO: 實作 notify_skill.py 後取消註解
-    # from notify_skill import send_notify
-    # result = await send_notify(actual_input, route=route)
-    # return {"success": True, "result": result}
-    return {"success": True, "result": f"[notify] 骨架 — route={route}, input={actual_input}"}
+    result = await send_revenue_notify(actual_input, route=route)
+    return {"success": True, "result": result}
 """
 
 SKILL_PKG_CRAWLER_YAML = '''type: skill
@@ -725,3 +830,134 @@ priority: 8
 enabled: true
 response_type: text
 '''
+
+# ── TG 通報樣板（notify/assets/）──
+
+TG_FORMATTER_PY = '''"""TG 通報訊息格式化器 — 讀取 assets/ 樣板，填入資料產出 TG 訊息"""
+from pathlib import Path
+
+ASSETS_DIR = Path(__file__).resolve().parent
+
+COUNTRY_FLAGS = {
+    "CN": "\\U0001f1e8\\U0001f1f3", "JP": "\\U0001f1ef\\U0001f1f5",
+    "TW": "\\U0001f1f9\\U0001f1fc", "VN": "\\U0001f1fb\\U0001f1f3",
+    "US": "\\U0001f1fa\\U0001f1f8", "KR": "\\U0001f1f0\\U0001f1f7",
+}
+MEDALS = ["\\U0001f947", "\\U0001f948", "\\U0001f949", "\\U0001f539", "\\U0001f539"]
+
+
+def _fmt(value) -> str:
+    if isinstance(value, float):
+        return f"{value:,.2f}"
+    if isinstance(value, int):
+        return f"{value:,}"
+    return str(value)
+
+
+def _fmt_big(value) -> str:
+    v = float(value) if value else 0
+    if v >= 1e12:
+        return f"{v / 1e12:,.2f}T"
+    elif v >= 1e9:
+        return f"{v / 1e9:,.2f}B"
+    elif v >= 1e6:
+        return f"{v / 1e6:,.2f}M"
+    elif v >= 1e3:
+        return f"{v / 1e3:,.1f}K"
+    else:
+        return f"{v:,.2f}"
+
+
+def _format_date(d) -> str:
+    s = str(d)
+    if "-" in s:
+        return s[:10]
+    return f"{s[:4]}-{s[4:6]}-{s[6:]}"
+
+
+def format_revenue_message(data: dict) -> str:
+    template = (ASSETS_DIR / "tg_revenue_template.txt").read_text(encoding="utf-8")
+    markets = data.get("markets", [])
+    market_lines = []
+    for m in markets[:5]:
+        flag = COUNTRY_FLAGS.get(m["country"], "\\U0001f310")
+        market_lines.append(f"{flag} {m[\\'country\\']}: ${_fmt(m[\\'revenue\\'])} (\\U0001f464 {m[\\'users\\']}人)")
+
+    top_player_lines = []
+    for i, p in enumerate(data.get("top_players", [])[:5]):
+        medal = MEDALS[i] if i < len(MEDALS) else "\\U0001f539"
+        top_player_lines.append(f"{medal} UID {p[\\'uid\\']}: ${_fmt(p[\\'revenue\\'])}")
+
+    return template.format(
+        date=_format_date(data.get("date", "")),
+        total_revenue=_fmt(data.get("total_revenue", 0)),
+        total_users=_fmt(data.get("total_users", 0)),
+        market_lines="\\n".join(market_lines) or "（無資料）",
+        top_player_lines="\\n".join(top_player_lines) or "（無資料）",
+    )
+
+
+def format_game_message(data: dict) -> str:
+    template = (ASSETS_DIR / "tg_game_template.txt").read_text(encoding="utf-8")
+    slots = data.get("slot_games", [])
+    slot_bet = sum(g.get("total_bet", 0) for g in slots)
+    slot_win = sum(g.get("total_win", 0) for g in slots)
+    slot_rtp = f"{slot_win / slot_bet * 100:.2f}" if slot_bet > 0 else "N/A"
+    slot_sessions = sum(g.get("sessions", 0) for g in slots)
+    slot_users = sum(g.get("users", 0) for g in slots)
+
+    slot_sorted = sorted(slots, key=lambda g: g.get("total_bet", 0), reverse=True)
+    slot_top5_lines = []
+    for i, g in enumerate(slot_sorted[:5]):
+        medal = MEDALS[i] if i < len(MEDALS) else "\\U0001f539"
+        name = g.get("game_name", f"GameID={g.get(\\'game_id\\', \\'?\\')}")
+        rtp = f"{g[\\'total_win\\'] / g[\\'total_bet\\'] * 100:.1f}" if g.get("total_bet", 0) > 0 else "N/A"
+        slot_top5_lines.append(f"{medal} {name}: {_fmt_big(g.get(\\'total_bet\\', 0))} | RTP {rtp}%")
+
+    markets = data.get("country_distribution", [])
+    market_lines = []
+    for m in markets[:6]:
+        flag = COUNTRY_FLAGS.get(m.get("country", ""), "\\U0001f310")
+        market_lines.append(f"{flag} {m.get(\\'country\\', \\'?\\')} : {_fmt_big(m.get(\\'total_bet\\', 0))} | \\U0001f464 {_fmt(m.get(\\'users\\', 0))}人")
+
+    return template.format(
+        date=_format_date(data.get("report_date", "")),
+        slot_sessions=_fmt(slot_sessions),
+        slot_users=_fmt(slot_users),
+        slot_count=len(slots),
+        slot_bet=_fmt_big(slot_bet),
+        slot_rtp=slot_rtp,
+        total_bet=_fmt_big(slot_bet),
+        total_rtp=slot_rtp,
+        slot_top5_lines="\\n".join(slot_top5_lines) or "（無資料）",
+        market_lines="\\n".join(market_lines) or "（無資料）",
+    )
+'''
+
+TG_REVENUE_TEMPLATE = """📊 每日營收報告
+⏰ 數據時間：{date}
+
+🌍 1. 各市場營收表現
+💰 總營收: ${total_revenue} (👤 {total_users}人)
+{market_lines}
+
+🏆 2. 玩家儲值排行榜 (Top 5)
+{top_player_lines}
+"""
+
+TG_GAME_TEMPLATE = """🎮 每日遊戲分析報告
+⏰ 數據時間：{date} 00:00-23:59
+
+🎰 1. 老虎機總覽
+🎲 場次: {slot_sessions} | 👤 玩家: {slot_users} | 🎮 {slot_count} 款
+💰 押量: {slot_bet} | 🏆 RTP: {slot_rtp}%
+
+📊 2. 整體 KPI
+💰 總押量: {total_bet} | 🏆 整體 RTP: {total_rtp}%
+
+🏆 3. 老虎機熱門 Top 5
+{slot_top5_lines}
+
+🌍 4. 各市場押量分佈
+{market_lines}
+"""

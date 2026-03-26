@@ -28,7 +28,7 @@ from templates import (
     # ── Decision ──
     SKILL_REGISTRY_PY, SKILL_RESOLVER_PY, SKILL_PROMPT_PY,
     # ── Core ──
-    CORE_PY, GEMINI_CANVAS_SKILL_PY, DASHBOARD_SKILL_PY, CRAWLER_SKILL_PY, FORMAT_UTILS_PY,
+    CORE_PY, CORE_LITE_PY, GEMINI_CANVAS_SKILL_PY, DASHBOARD_SKILL_PY, CRAWLER_SKILL_PY, FORMAT_UTILS_PY,
     # ── Entry ──
     BOT_MAIN_PY, TELEGRAM_ENTRY_PY, WEB_SERVER_PY, WEB_ENTRY_PY, WEB_INDEX_HTML, CLI_ENTRY_PY, DASHBOARD_HUB_HTML, MAIN_PY,
     # ── Skills ──
@@ -37,7 +37,7 @@ from templates import (
     SKILL_PKG_DASHBOARD_PY,
     # ── Skills YAML ──
     SKILL_PKG_CRAWLER_YAML, SKILL_PKG_CHAT_YAML, SKILL_PKG_DASHBOARD_YAML,
-    SKILL_PKG_NOTIFY_YAML, SKILL_PKG_NOTIFY_PY,
+    SKILL_PKG_NOTIFY_YAML, SKILL_PKG_NOTIFY_PY, SKILL_PKG_NOTIFY_LITE_PY,
     SKILL_PKG_CANVAS_YAML, SKILL_PKG_CANVAS_PY,
     SKILL_PKG_DAILY_REPORT_YAML,
     # AIBI Skill Package（MCP / AI / Composite）
@@ -45,6 +45,10 @@ from templates import (
     SKILL_PKG_MSSQL_QUERY_YAML,
     SKILL_PKG_KPI_ANALYZER_YAML, SKILL_PKG_KPI_ANALYZER_PROMPT,
     SKILL_PKG_ANOMALY_REPORT_YAML,
+    # ── Lite Skill Templates ──
+    SKILL_PKG_DASHBOARD_LITE_PY,
+    # ── TG 通報樣板 ──
+    TG_FORMATTER_PY, TG_REVENUE_TEMPLATE, TG_GAME_TEMPLATE,
     # ── Sample Data ──
     SAMPLE_REVENUE_JSON, SAMPLE_SLOTS_JSON, SAMPLE_FISH_JSON,
     # ── Tests ──
@@ -56,6 +60,7 @@ from templates import (
     # ── Config ──
     START_BAT, SCHEDULES_JSON, ENV_EXAMPLE, REQUIREMENTS_TXT,
     ARKAGENT_START_BAT, ARKAGENT_ENV_EXAMPLE, ARKAGENT_REQUIREMENTS_TXT,
+    LITE_REQUIREMENTS_TXT,
     TELEGRAM_CONFIG_JSON,
     INIT_DB_PY, BOT_TEST_GUIDE,
     # ── Domain Controller ──
@@ -80,6 +85,46 @@ def _get_index_html() -> str:
     return WEB_INDEX_HTML
 
 
+def _get_notify_skill() -> str:
+    """從 assets/ 讀取 notify_skill.py 完整實作"""
+    skill_dir = Path(__file__).resolve().parent.parent.parent
+    src = skill_dir / "assets" / "notify_skill.py"
+    if src.exists():
+        return src.read_text(encoding="utf-8")
+    return '"""Notify Skill — 請從 assets/notify_skill.py 取得完整實作"""\n'
+
+
+def _skill_md(name: str, desc: str) -> str:
+    """產出 SKILL.md 模板"""
+    return f"""---
+name: {name}
+description: "{desc}"
+---
+
+# {name}
+
+{desc}
+"""
+
+
+def _readme_md(name: str, runtime: str, desc: str) -> str:
+    """產出 README.md 模板"""
+    return f"""# {name}
+
+| 項目 | 值 |
+|------|-----|
+| 版本 | 0.1.0 |
+| Runtime | {runtime} |
+| 最後更新 | 2026-03-25 |
+
+## 說明
+{desc}
+
+## 變更紀錄
+- 0.1.0 — 初始版本（由 arkagent-bot-generator lite 產出）
+"""
+
+
 def _compat_dir(g: "Generator") -> str:
     """取得相容層目錄名：arkagent 用 compat/，arkbot 用 src/"""
     return "compat" if g.manifest["features"].get("compat") else "src"
@@ -90,7 +135,78 @@ def _replace_compat(template: str, compat: str) -> str:
     return template.replace("__COMPAT_DIR__", compat)
 
 
-# ═══ ArkBot 專用模組 ═══
+# ═══ Lite 模式專用模組 ═══
+
+def gen_src_lite(g: "Generator"):
+    """Lite src/ — 精簡版核心模組（無 hybrid_router / skill_resolver / skill_prompt / gemini_canvas）"""
+    r = g.root
+    g.create_file(r / "src" / "arkbot_core.py", CORE_LITE_PY)
+    g.create_file(r / "src" / "intent_router.py", INTENT_ROUTER_PY)
+    g.create_file(r / "src" / "crawler_skill.py", CRAWLER_SKILL_PY)
+    g.create_file(r / "src" / "format_utils.py", FORMAT_UTILS_PY)
+    g.create_file(r / "src" / "skill_registry.py", SKILL_REGISTRY_PY)
+    g.create_file(r / "src" / "executor.py", EXECUTOR_PY)
+    g.create_file(r / "src" / "scheduler.py", _replace_compat(SCHEDULER_PY, "src"))
+    g.create_file(r / "src" / "notify_skill.py", _get_notify_skill())
+
+
+def gen_skills_lite(g: "Generator"):
+    """Lite skills/ — 4 個基礎 skill（chat / crawler / dashboard / notify）
+    統一目錄結構：config/skill.yaml + scripts/skill.py + SKILL.md + README.md + references/.gitkeep
+    notify 額外產出 assets/（tg_formatter.py + tg_revenue_template.txt + tg_game_template.txt）
+    """
+    r = g.root
+    cd = _compat_dir(g)
+
+    # ── chat ──
+    g.create_file(r / "skills" / "chat" / "config" / "skill.yaml", SKILL_PKG_CHAT_YAML)
+    g.create_file(r / "skills" / "chat" / "scripts" / "skill.py", SKILL_PKG_CHAT_PY)
+    g.create_file(r / "skills" / "chat" / "references" / ".gitkeep", "\n")
+    g.create_file(r / "skills" / "chat" / "SKILL.md", _skill_md("chat", "Gemini AI chat"))
+    g.create_file(r / "skills" / "chat" / "README.md", _readme_md("chat", "python", "Gemini AI chat"))
+
+    # ── crawler ──
+    g.create_file(r / "skills" / "crawler" / "config" / "skill.yaml", SKILL_PKG_CRAWLER_YAML)
+    g.create_file(r / "skills" / "crawler" / "scripts" / "skill.py", SKILL_PKG_CRAWLER_PY)
+    g.create_file(r / "skills" / "crawler" / "references" / ".gitkeep", "\n")
+    g.create_file(r / "skills" / "crawler" / "SKILL.md", _skill_md("crawler", "Web crawler + summary"))
+    g.create_file(r / "skills" / "crawler" / "README.md", _readme_md("crawler", "python", "Web crawler + summary"))
+
+    # ── dashboard ──
+    g.create_file(r / "skills" / "dashboard" / "config" / "skill.yaml", SKILL_PKG_DASHBOARD_YAML)
+    g.create_file(r / "skills" / "dashboard" / "scripts" / "skill.py", SKILL_PKG_DASHBOARD_LITE_PY)
+    g.create_file(r / "skills" / "dashboard" / "references" / ".gitkeep", "\n")
+    g.create_file(r / "skills" / "dashboard" / "SKILL.md", _skill_md("dashboard", "Gemini dashboard generator"))
+    g.create_file(r / "skills" / "dashboard" / "README.md", _readme_md("dashboard", "python", "Gemini dashboard generator"))
+
+    # ── notify（含 assets/tg_formatter + templates）──
+    g.create_file(r / "skills" / "notify" / "config" / "skill.yaml", SKILL_PKG_NOTIFY_YAML)
+    g.create_file(r / "skills" / "notify" / "scripts" / "skill.py", _replace_compat(SKILL_PKG_NOTIFY_LITE_PY, cd))
+    g.create_file(r / "skills" / "notify" / "references" / ".gitkeep", "\n")
+    g.create_file(r / "skills" / "notify" / "SKILL.md", _skill_md("notify", "TG notification sender"))
+    g.create_file(r / "skills" / "notify" / "README.md", _readme_md("notify", "python", "TG notification sender"))
+    g.create_file(r / "skills" / "notify" / "assets" / "tg_formatter.py", TG_FORMATTER_PY)
+    g.create_file(r / "skills" / "notify" / "assets" / "tg_revenue_template.txt", TG_REVENUE_TEMPLATE)
+    g.create_file(r / "skills" / "notify" / "assets" / "tg_game_template.txt", TG_GAME_TEMPLATE)
+
+
+def gen_config_mcp_lite(g: "Generator"):
+    """Lite config/ — 只有 sqlite-server（無 bigquery / mssql）"""
+    r = g.root
+    lite_mcp = '''{
+    "mcpServers": {
+        "sqlite-server": {
+            "command": "uvx",
+            "args": ["mcp-server-sqlite", "--db-path", "data/brain.db"],
+            "disabled": false
+        }
+    }
+}'''
+    g.create_file(r / "config" / "mcp.json", lite_mcp)
+    g.create_file(r / "config" / "telegram.json", TELEGRAM_CONFIG_JSON)
+
+
+# ═══ Standard（ArkBot）專用模組 ═══
 
 def gen_src(g: "Generator"):
     """ArkBot src/ — 核心模組（11 個，入口由 gen_entry 負責）"""
@@ -107,6 +223,7 @@ def gen_src(g: "Generator"):
     g.create_file(r / "src" / "hybrid_router.py", HYBRID_ROUTER_PY)
     g.create_file(r / "src" / "executor.py", EXECUTOR_PY)
     g.create_file(r / "src" / "scheduler.py", _replace_compat(SCHEDULER_PY, "src"))
+    g.create_file(r / "src" / "notify_skill.py", _get_notify_skill())
 
 
 def gen_tests_basic(g: "Generator"):
@@ -190,7 +307,15 @@ def gen_entry(g: "Generator"):
     r = g.root
     cd = _compat_dir(g)
     g.create_file(r / "entry" / "telegram_entry.py", _replace_compat(TELEGRAM_ENTRY_PY, cd))
-    g.create_file(r / "entry" / "web_entry.py", _replace_compat(WEB_ENTRY_PY, cd))
+    # Lite 模式：web_entry 從 arkbot_core 匯入 registry（不依賴 hybrid_router）
+    web_entry = _replace_compat(WEB_ENTRY_PY, cd)
+    is_lite = g.manifest["name"] == "lite"
+    if is_lite:
+        web_entry = web_entry.replace(
+            "from hybrid_router import registry",
+            "from arkbot_core import registry"
+        )
+    g.create_file(r / "entry" / "web_entry.py", web_entry)
     g.create_file(r / "entry" / "cli_entry.py", _replace_compat(CLI_ENTRY_PY, cd))
 
 
@@ -244,6 +369,7 @@ def gen_compat(g: "Generator"):
     g.create_file(r / "compat" / "hybrid_router.py", HYBRID_ROUTER_PY)
     g.create_file(r / "compat" / "executor.py", EXECUTOR_PY)
     g.create_file(r / "compat" / "scheduler.py", SCHEDULER_PY)
+    g.create_file(r / "compat" / "notify_skill.py", _get_notify_skill())
 
 
 def gen_skills_yaml(g: "Generator"):
@@ -307,6 +433,7 @@ def gen_common(g: "Generator"):
         "ARKAGENT_ENV_EXAMPLE": ARKAGENT_ENV_EXAMPLE,
         "REQUIREMENTS_TXT": REQUIREMENTS_TXT,
         "ARKAGENT_REQUIREMENTS_TXT": ARKAGENT_REQUIREMENTS_TXT,
+        "LITE_REQUIREMENTS_TXT": LITE_REQUIREMENTS_TXT,
         "START_BAT": START_BAT,
         "ARKAGENT_START_BAT": ARKAGENT_START_BAT,
     }
@@ -332,9 +459,9 @@ def gen_common(g: "Generator"):
     # data/
     g.create_file(r / "data" / ".gitkeep", "")
     g.create_file(r / "data" / "dashboard" / ".gitkeep", "")
-    g.create_file(r / "data" / "dashboard" / "revenue" / "sample.json", SAMPLE_REVENUE_JSON)
-    g.create_file(r / "data" / "dashboard" / "slots" / "sample.json", SAMPLE_SLOTS_JSON)
-    g.create_file(r / "data" / "dashboard" / "fish" / "sample.json", SAMPLE_FISH_JSON)
+    g.create_file(r / "data" / "dashboard" / "sample" / "revenue.json", SAMPLE_REVENUE_JSON)
+    g.create_file(r / "data" / "dashboard" / "sample" / "slots.json", SAMPLE_SLOTS_JSON)
+    g.create_file(r / "data" / "dashboard" / "sample" / "fish.json", SAMPLE_FISH_JSON)
     g.create_file(r / "data" / "schedules.json", SCHEDULES_JSON)
 
     # docs/
@@ -384,7 +511,11 @@ def gen_workflow_skills(g: "Generator"):
 # ═══ Module Registry ═══
 
 MODULE_REGISTRY: dict[str, callable] = {
-    # ArkBot 專用
+    # Lite 模式
+    "src_lite":         gen_src_lite,
+    "skills_lite":      gen_skills_lite,
+    "config_mcp_lite":  gen_config_mcp_lite,
+    # Standard（ArkBot）專用
     "src":              gen_src,
     "dashboard_engine": gen_dashboard_engine,
     "runtime_adapters": gen_runtime_adapters,

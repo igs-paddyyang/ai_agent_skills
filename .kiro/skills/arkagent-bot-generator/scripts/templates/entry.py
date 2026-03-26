@@ -196,13 +196,31 @@ async def _send_with_retry(coro_fn, *args, **kwargs):
 
 
 async def start(update: Update, context):
-    """歡迎訊息"""
+    """歡迎訊息 — 帶 Web 對話介面按鈕"""
+    from telegram import InlineKeyboardButton, InlineKeyboardMarkup
+
+    web_url = os.getenv("WEB_PUBLIC_URL", "")
     welcome = (
-        "\\*ArkAgent 智庫助理\\* \\(v1\\.0\\)\n\n"
-        "傳送網址給我，我會幫你獵取並摘要內容\\!\n"
+        "ArkBot 智庫助理 (v1.0)\\n\\n"
+        "傳送網址給我，我會幫你獵取並摘要內容！\\n"
         "也可以直接跟我聊天"
     )
-    await update.message.reply_text(welcome, parse_mode=ParseMode.MARKDOWN_V2)
+    if web_url:
+        welcome += f"\\n\\n🌐 或點擊下方按鈕開啟 Web 對話介面"
+
+    keyboard = None
+    if web_url:
+        keyboard = InlineKeyboardMarkup([
+            [InlineKeyboardButton("🌐 開啟 Web 對話", url=web_url)],
+            [InlineKeyboardButton("📊 數據中心", url=f"{web_url}/dashboard")],
+        ])
+
+    try:
+        await update.message.reply_text(welcome, reply_markup=keyboard)
+    except Exception:
+        await context.bot.send_message(
+            chat_id=update.effective_chat.id, text=welcome, reply_markup=keyboard
+        )
 
 
 async def handle_message(update: Update, context):
@@ -212,8 +230,7 @@ async def handle_message(update: Update, context):
     try:
         thinking = await _send_with_retry(
             update.message.reply_text,
-            "正在思考\\.\\.\\.",
-            parse_mode=ParseMode.MARKDOWN_V2,
+            "正在思考...",
         )
     except (TimedOut, NetworkError) as e:
         logger.error(f"無法發送訊息：{e}")
@@ -224,8 +241,7 @@ async def handle_message(update: Update, context):
         async for event in process_message(user_input):
             if event["type"] == "status":
                 try:
-                    safe = escape_markdown_v2(event["content"])
-                    await _send_with_retry(thinking.edit_text, safe, parse_mode=ParseMode.MARKDOWN_V2)
+                    await _send_with_retry(thinking.edit_text, event["content"])
                 except (TimedOut, NetworkError):
                     pass
             elif event["type"] == "reply":
@@ -243,9 +259,8 @@ async def handle_message(update: Update, context):
                 final_reply = f"[error] {event['content']}"
 
         if final_reply:
-            safe = escape_markdown_v2(final_reply)
             try:
-                await _send_with_retry(thinking.edit_text, safe, parse_mode=ParseMode.MARKDOWN_V2)
+                await _send_with_retry(thinking.edit_text, final_reply)
             except (TimedOut, NetworkError) as e:
                 logger.error(f"無法發送回覆：{e}")
     except Exception as e:

@@ -25,7 +25,9 @@ class Generator:
             print(f"  [F] {rel}")
             return
         path.parent.mkdir(parents=True, exist_ok=True)
-        path.write_text(content, encoding="utf-8")
+        # 模板常數在三引號字串內用 \\' 跳脫單引號，產出時還原為 '
+        cleaned = content.replace("\\'", "'")
+        path.write_text(cleaned, encoding="utf-8")
         print(f"  [OK] {rel}")
 
     def get_modules(self) -> list[str]:

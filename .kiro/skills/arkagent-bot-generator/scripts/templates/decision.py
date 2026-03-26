@@ -33,33 +33,38 @@ class SkillRegistry:
         for child in sorted(base.iterdir()):
             if not child.is_dir():
                 continue
-            # 直接子目錄有 skill.json / skill.yaml → 視為 skill
-            if (child / "skill.json").exists() or (child / "skill.yaml").exists():
+            # 直接子目錄有 skill 定義檔 → 視為 skill
+            if self._has_skill_def(child):
                 skill_dirs.append(child)
             else:
                 # 掃描二層子目錄（如 workflows/daily-report/）
                 for grandchild in sorted(child.iterdir()):
-                    if grandchild.is_dir() and (
-                        (grandchild / "skill.json").exists() or (grandchild / "skill.yaml").exists()
-                    ):
+                    if grandchild.is_dir() and self._has_skill_def(grandchild):
                         skill_dirs.append(grandchild)
 
         for child in skill_dirs:
             meta = None
             source = None
 
-            # 優先 skill.json
-            json_path = child / "skill.json"
-            if json_path.exists():
-                meta = self._load_json(json_path)
-                source = "json"
+            # 優先 config/skill.yaml（新結構）
+            config_yaml = child / "config" / "skill.yaml"
+            if config_yaml.exists():
+                meta = self._load_yaml(config_yaml)
+                source = "yaml"
 
-            # fallback skill.yaml
+            # fallback skill.yaml（舊結構向後相容）
             if meta is None:
                 yaml_path = child / "skill.yaml"
                 if yaml_path.exists():
                     meta = self._load_yaml(yaml_path)
                     source = "yaml"
+
+            # fallback skill.json
+            if meta is None:
+                json_path = child / "skill.json"
+                if json_path.exists():
+                    meta = self._load_json(json_path)
+                    source = "json"
 
             if meta is None:
                 continue
@@ -99,6 +104,14 @@ class SkillRegistry:
 
             self.skills[sid] = meta
             logger.info(f"載入 Skill：{sid} (intent={meta[\'intent\']}, source={source})")
+
+    def _has_skill_def(self, d: Path) -> bool:
+        """檢查目錄是否包含 skill 定義檔（支援新舊結構）"""
+        return (
+            (d / "config" / "skill.yaml").exists()
+            or (d / "skill.yaml").exists()
+            or (d / "skill.json").exists()
+        )
 
     def _load_json(self, path: Path) -> dict | None:
         try:

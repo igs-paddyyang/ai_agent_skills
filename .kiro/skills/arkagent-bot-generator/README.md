@@ -6,7 +6,7 @@
 
 | 欄位 | 值 |
 |------|-----|
-| 版本 | 1.9.7 |
+| 版本 | 2.0.0 |
 | 作者 | paddyyang |
 | 建立日期 | 2026-03-18 |
 | 最後更新 | 2026-03-25 |
@@ -17,8 +17,8 @@
 
 支援兩種模式產出 AI Agent 專案：
 
-- **ArkBot 模式**（預設）：完整可執行架構（entry/ → src/ → controller/ + memory/ + planner/），產出 ~74 個檔案
-- **ArkAgent OS 模式**（進階）：平台級架構（Agent Kernel / Intent Engine / Skill Runtime / Memory System / Tool Gateway）+ Domain Controller + Skill Planner + API Gateway + compat/ 相容層，產出 ~116 個檔案，支援 Spec DSL、多 Agent、Architecture Reviewer
+- **ArkBot 模式**（預設）：完整可執行架構（entry/ → src/ → controller/ + memory/ + planner/），產出 ~75 個檔案
+- **ArkAgent OS 模式**（進階）：平台級架構（Agent Kernel / Intent Engine / Skill Runtime / Memory System / Tool Gateway）+ Domain Controller + Skill Planner + API Gateway + compat/ 相容層，產出 ~117 個檔案，支援 Spec DSL、多 Agent、Architecture Reviewer
 
 採用兩階段工作流程：Scaffold（骨架搭建）確認結構後，再 Implement（逐層實作）填入細節。
 
@@ -260,7 +260,7 @@ arkbot 產出一個完整可執行的 Agent（entry/ → src/ → controller/ + 
 ## 檔案結構
 
 ```
-.kiro/skills/arkbot-agent-generator/
+.kiro/skills/arkagent-bot-generator/
 ├── SKILL.md                        # 主要技能指令（雙模式：ArkBot + ArkAgent OS）
 ├── README.md                       # 本文件
 ├── references/
@@ -297,8 +297,27 @@ arkbot 產出一個完整可執行的 Agent（entry/ → src/ → controller/ + 
 
 ## 變更紀錄
 
+### v2.0.0（2026-03-25）
+- `SCHEDULER_PY` 升級為 SQLite 持久化版（scheduler_runs 表，重啟不重複觸發）
+- `assets/notify_skill.py` 精簡為發送核心（send_to_route），移除格式化函式
+- `TELEGRAM_ENTRY_PY` 改為純文字模式（移除 MarkdownV2，Forum 群組 fallback）
+- `INIT_DB_PY` 新增 scheduler_runs 表
+- `SKILL_PKG_NOTIFY_PY` 更新入口（讀 JSON → tg_formatter → send_to_route）
+
+### v1.9.9（2026-03-25）
+- `SKILL_REGISTRY_PY` 升級：掃描優先順序改為 config/skill.yaml → skill.yaml → skill.json，新增 `_has_skill_def()` helper
+- `PYTHON_ADAPTER_PY` 升級：入口檔案優先順序改為 scripts/skill.py → skill.py，新增 `_find_entry()` helper
+- `AI_ADAPTER_PY` 升級：prompt 路徑優先順序改為 assets/prompt.txt → prompt.txt，新增 `_find_prompt()` helper
+- 支援統一目錄結構（config/ + scripts/ + assets/ + SKILL.md + README.md），向後相容舊結構
+
+### v1.9.8（2026-03-25）
+- `Generator.create_file()` 新增 `\\'` → `'` 自動還原（修正模板三引號字串內的跳脫單引號在產出檔案中殘留為 `\'` 的 bug，影響 8 個 .py 檔案的語法正確性）
+
 ### v1.9.7（2026-03-25）
-- 移除 SKILL.md frontmatter 中非預期的 `author` 屬性（通過 quick_validate 驗證）
+- `SKILL_PKG_NOTIFY_PY` 從骨架升級為完整實作（取消 TODO 註解，直接呼叫 `notify_skill.send_revenue_notify`）
+- 新增 `assets/notify_skill.py`（完整 TG 通報實作：自動偵測資料類型、格式化訊息、依 telegram.json 路由發送）
+- `gen_src` / `gen_compat` 新增產出 `notify_skill.py`（從 assets/ 複製，與 dashboard_engine 同模式）
+- 新增 `_get_notify_skill()` 輔助函式（registry.py）
 
 ### v1.9.6（2026-03-24）
 - 清理 deprecated wrapper：刪除 `generate_arkbot.py` + `generate_arkagent.py`（已由 `generate.py` 統一取代）
