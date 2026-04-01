@@ -1,6 +1,6 @@
 ---
 inclusion: always
-version: "1.1.0"
+version: "1.2.0"
 last_synced: "2026-03-25"
 ---
 
@@ -18,20 +18,6 @@ last_synced: "2026-03-25"
 │   └── skills/                          # Kiro 技能（核心產出物）
 │       ├── skill-creator/               # 技能建立器（含 eval 測試框架）
 │       ├── software-spec-writer/        # 軟體工程規格文件撰寫師
-│       ├── arkbot-agent-generator/      # Generator Platform（統一產生器）
-│       │   ├── SKILL.md
-│       │   ├── README.md
-│       │   ├── references/              # arkbot-foundation + decision-engine + skill-runtime + arkagent-os
-│       │   ├── scripts/
-│       │   │   ├── generate.py          # 統一 CLI 入口（~80 行）
-│       │   │   ├── generator/           # Generator 核心
-│       │   │   │   ├── core.py          # Generator 類別 + create_file
-│       │   │   │   ├── manifest.py      # arkbot + arkagent profile（純 Python dict）
-│       │   │   │   └── registry.py      # MODULE_REGISTRY（19 個 gen_* 函式）
-│       │   │   ├── generate_arkbot.py   # ⚠️ deprecated thin wrapper
-│       │   │   ├── generate_arkagent.py # ⚠️ deprecated thin wrapper
-│       │   │   └── templates/           # 模板常數（14 個模組）
-│       │   └── assets/
 │       ├── gemini-canvas-dashboard/     # 通用 Gemini Canvas 儀表板
 │       ├── skill-spec-writer/           # 技能規格撰寫師
 │       ├── websearch-summarizer/        # 網頁搜尋摘要師

@@ -64,6 +64,7 @@ def stage_validate() -> bool:
             capture_output=True,
             encoding="utf-8",
             errors="replace",
+            env={**__import__("os").environ, "PYTHONIOENCODING": "utf-8"},
         )
 
         if result.returncode == 0:

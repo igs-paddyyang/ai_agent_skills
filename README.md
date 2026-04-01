@@ -11,8 +11,6 @@ AI Agent 架構與 Agent Skills 的開發、測試、打包專案。
 1. 用 `skill-spec-writer` 產出技能規格 → 餵給 `skill-creator`
 2. 用 `skill-creator` 建立、測試、迭代改進 Kiro Skills
 3. 用 `software-spec-writer` 產出專案級規格文件驅動開發
-4. 用 `arkbot-agent-generator` 一鍵生成完整的 AI Agent 專案
-5. 在 Agent 上部署外部產出的 Skill Package
 
 ## Kiro Skills（21 個）
 
@@ -32,7 +30,7 @@ AI Agent 架構與 Agent Skills 的開發、測試、打包專案。
 | `websearch-summarizer` | 網頁搜尋 → 結構化摘要 |
 | `changelog-generator` | Git commits → 結構化變更紀錄 |
 | `game-design-document-writer` | 遊戲企劃文件（GDD + One Pager） |
-| `fish-spec-writer` | 捕魚機遊戲機台規格文件 |
+| `game-spec-writer` | 遊戲機台規格文件（捕魚機/老虎機/棋牌） |
 
 ### 開發指引
 | 技能 | 說明 |
@@ -42,20 +40,20 @@ AI Agent 架構與 Agent Skills 的開發、測試、打包專案。
 | `mcp-builder-guide` | MCP Server 建立指引（Python SDK） |
 | `prompt-engineering-guide` | Prompt 設計方法論與 description 撰寫公式 |
 
-### 產生器
+### 產生器與視覺化
 | 技能 | 說明 |
 |------|------|
-| `arkbot-agent-generator` | ArkBot / ArkAgent OS 專案產生器 |
 | `gemini-canvas-dashboard` | JSON → Gemini API → HTML 儀表板 |
 | `dashboard-skill-generator` | JSON → DSL → Renderer → HTML 儀表板 |
 | `d3-visualization-guide` | D3.js 互動圖表與資料視覺化 |
 
-### 環境與同步
+### 環境與 CI
 | 技能 | 說明 |
 |------|------|
 | `env-setup-installer` | 環境與服務安裝引導 |
 | `env-smoke-test` | 環境煙霧測試 |
 | `skill-sync` | 技能同步備份（.kiro → .agent） |
+| `ci-automation` | CI 自動化（lint + validate + sync） |
 
 ## 快速開始
 
@@ -84,11 +82,8 @@ py .kiro/skills/skill-creator/scripts/quick_validate.py .kiro/skills/<skill-name
 # 技能同步（.kiro/skills → .agent/skills）
 py .kiro/skills/skill-sync/scripts/sync_skills.py
 
-# 產生 ArkBot 專案
-python .kiro/skills/arkbot-agent-generator/scripts/generate.py arkbot <project-name>
-
-# 產生 ArkAgent OS 專案
-python .kiro/skills/arkbot-agent-generator/scripts/generate.py arkagent <project-name>
+# 本地 CI（lint + validate + sync）
+py .kiro/skills/ci-automation/scripts/ci_local.py
 ```
 
 ## 專案結構

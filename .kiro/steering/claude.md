@@ -13,7 +13,7 @@ last_synced: "2026-03-25"
 ## 專案性質
 
 本專案是 Agent Skills Factory — 建立 AI Agent 架構與 Agent Skills 的開發專案。工作區包含：
-- `.kiro/skills/` — 研發系統（使用 Kiro IDE 開發技能，核心產出物，22 個技能）
+- `.kiro/skills/` — 研發系統（使用 Kiro IDE 開發技能，核心產出物，21 個技能）
 - `.agent/skills/` — 正式環境（無 Kiro IDE 時的技能部署位置 / 備份，由 skill-sync 同步）
 - `docs/` — 設計文件與規格
 - `output/` — 產出物暫存

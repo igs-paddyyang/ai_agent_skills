@@ -1,6 +1,6 @@
 ---
 inclusion: always
-version: "1.2.0"
+version: "1.3.0"
 last_synced: "2026-03-25"
 ---
 
@@ -20,11 +20,10 @@ Google Antigravity — Agent Skills Factory。一個用於建立 AI Agent 架構
 
 ## 核心產出物
 
-### Kiro Skills（22 個）
+### Kiro Skills（21 個）
 - `skill-creator` — 建立 / 測試 / 打包技能的元技能
 - `skill-spec-writer` — 技能級規格文件（餵給 skill-creator）
 - `software-spec-writer` — 專案級規格文件 + 任務執行計畫
-- `arkbot-agent-generator` — ArkBot Agent 專案產生器（Foundation 基礎層 ～ 完整四層架構）
 - `gemini-canvas-dashboard` — 任意 JSON → Gemini API → HTML 儀表板
 - `dashboard-skill-generator` — 產品級 Dashboard 產生器（JSON → DSL → Renderer → HTML）
 - `document-summarizer` — 長文件 → 結構化摘要 + 行動建議

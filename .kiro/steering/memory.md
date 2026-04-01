@@ -22,12 +22,11 @@ last_synced: "2026-03-24"
 
 ## 當前開發狀態
 
-### Kiro Skills（22 個，全部含 README.md）
-- `skill-creator` v2.1.0 — 技能建立 / 測試 / 迭代改進（含 eval 框架、盲測比較、描述優化）
-- `skill-spec-writer` v0.2.0 — 技能級規格文件（餵給 skill-creator，5 階段工作流程）
-- `software-spec-writer` v1.1.0 — 軟體工程規格文件（8 章節：Part I 規格設計 5 + Part II 執行計畫 3）
-- `arkbot-agent-generator` v1.2.0 — Generator Platform：統一 CLI（generate.py）+ Manifest 驅動 + Module Registry。支援 arkbot（~37 檔）/ arkagent（~91 檔）兩種 profile，--no-compat / --dry-run / --modules 選項。v1.2.0 回寫 DataWiseBot-Agent 12 Issues + 8 Fixes 至模板（entry.py 分離入口、config.py cp950 相容、registry.py 新入口常數）
-- `gemini-canvas-dashboard` v1.0.0 — 通用儀表板（任意 JSON → Gemini API → HTML）
+### Kiro Skills（21 個，全部含 README.md）
+- `skill-creator` v2.1.1 — 技能建立 / 測試 / 迭代改進（含 eval 框架、盲測比較、描述優化）
+- `skill-spec-writer` v0.2.1 — 技能級規格文件（餵給 skill-creator，5 階段工作流程）
+- `software-spec-writer` v1.1.1 — 軟體工程規格文件（8 章節：Part I 規格設計 5 + Part II 執行計畫 3）
+- `gemini-canvas-dashboard` v1.0.1 — 通用儀表板（任意 JSON → Gemini API → HTML）
 - `dashboard-skill-generator` v0.1.0 — 產品級 Dashboard 產生器（JSON → DSL → Renderer → HTML）
 - `document-summarizer` v0.1.0 — 文件摘要（一句話摘要 + 核心重點 + 行動建議）
 - `websearch-summarizer` v0.1.0 — 網頁搜尋摘要（URL / 關鍵字 → 結構化摘要）
@@ -113,5 +112,5 @@ last_synced: "2026-03-24"
 
 ## 上次對話摘要
 
-- 2026-03-25：執行 skills-improvement-spec 全部 8 Task 完成。Phase 1: 22 技能全部通過 quick_validate（修正 6 個 author 屬性）、17 個版本升級。Phase 2: 知識指南評估→維持獨立。Phase 3: fish-spec-writer 泛化為 game-spec-writer（+老虎機/棋牌 references）。Phase 4: tdd-workflow 新增 run_tests.py。Phase 5: 新增 ci-automation 技能（ci_local.py 三階段 CI）。技能數 21→22。
+- 2026-03-25：移除 arkbot-agent-generator（含短暫拆分為 arkagent-bot-generator + arkagent-skill-creator 後再移除）。技能數 22→21。修正 ci_local.py cp950 encoding bug（加 PYTHONIOENCODING=utf-8）。更新所有 steering 文件對齊 21 技能。skill-sync 21/21 同步。
 - 2026-03-24：完成 Skills 體系缺口補強計畫全部驗證。changelog-generator git log 解析測試通過（9/12 commits）、skill-tapestry 全量關聯索引產出（21 技能）、skill-sync 全量同步完成（21/21 成功）、手動觸發測試通過（tdd-workflow + software-architecture-guide）。spec checklist 全部勾選完成。產生根目錄 README.md。
