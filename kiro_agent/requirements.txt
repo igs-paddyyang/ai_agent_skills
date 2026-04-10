@@ -1,0 +1,15 @@
+# kiro-agent 依賴套件
+# 核心
+python-telegram-bot
+PyYAML
+FastAPI
+uvicorn
+httpx
+croniter
+mcp
+google-genai
+
+# 測試
+hypothesis
+pytest
+pytest-asyncio

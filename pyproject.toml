@@ -1,0 +1,13 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "agent-skills-factory"
+version = "1.0.0"
+description = "Agent Skills Factory — AI Agent 架構與 Agent Skills 的開發、測試、打包專案"
+requires-python = ">=3.9"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["kiro_agent/tests"]

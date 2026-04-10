@@ -1,7 +1,7 @@
 ---
 inclusion: always
-version: "1.0.0"
-last_synced: "2026-03-24"
+version: "1.1.0"
+last_synced: "2026-04-10"
 ---
 
 # 技術棧
@@ -18,6 +18,20 @@ last_synced: "2026-03-24"
 | skill-spec-writer | 技能級規格文件（餵給 skill-creator） |
 | software-spec-writer | 專案級規格文件產生 |
 
+## kiro-agent 套件
+
+| 套件 | 用途 |
+|------|------|
+| python-telegram-bot | Telegram Bot（Forum Topic 路由） |
+| PyYAML | fleet.yaml 配置解析 |
+| FastAPI + uvicorn | Web Dashboard + SSE |
+| httpx | Groq Whisper API 語音轉錄 |
+| croniter | cron 排程表達式解析 |
+| mcp (FastMCP) | Agent 間 MCP 協作 |
+| google-genai | General Dispatcher 自然語言路由 |
+| hypothesis | Property-based testing |
+| pytest + pytest-asyncio | 測試框架 |
+
 ## ArkBot 相關套件
 
 | 套件 | 用途 |
@@ -30,9 +44,10 @@ last_synced: "2026-03-24"
 | beautifulsoup4 | 爬蟲引擎 HTML 解析 |
 | markdownify | HTML → Markdown 轉換 |
 
-
 ## 設定方式
 - ArkBot 設定：`.env`（GOOGLE_API_KEY、TELEGRAM_TOKEN、WEB_PORT）
+- kiro-agent 設定：`~/.kiro-agent/.env`（TELEGRAM_BOT_TOKEN、GOOGLE_API_KEY、GROQ_API_KEY）
+- kiro-agent 配置：`~/.kiro-agent/fleet.yaml`
 
 ## 常用指令
 
@@ -40,25 +55,20 @@ last_synced: "2026-03-24"
 # Kiro Skill 初始化（自動偵測路徑：.kiro/skills/ > .agent/skills/）
 python .kiro/skills/skill-creator/scripts/init_skill.py <skill-name>
 
-# 手動指定路徑
-python .kiro/skills/skill-creator/scripts/init_skill.py <skill-name> --path .kiro/skills
-python .kiro/skills/skill-creator/scripts/init_skill.py <skill-name> --path .agent/skills
-
 # Kiro Skill 驗證
 python .kiro/skills/skill-creator/scripts/quick_validate.py .kiro/skills/<skill-name>
 
-# Kiro Skill 打包
-python -m scripts.package_skill .kiro/skills/<skill-name>
-
 # Kiro Skill 同步（預設全量同步）
 python .kiro/skills/skill-sync/scripts/sync_skills.py
-python .kiro/skills/skill-sync/scripts/sync_skills.py --skills skill-creator env-smoke-test
 
-# ArkBot 啟動（Web + Telegram）
-start.bat
+# kiro-agent 測試
+py -m pytest kiro_agent/tests/unit/ -q
 
-# ArkBot 資料庫初始化
-py scripts/init_db.py
+# kiro-agent 艦隊管理
+kiro-agent fleet start
+kiro-agent fleet status
+kiro-agent fleet stop
+kiro-agent backend doctor kiro-cli
 ```
 
 ## 備註

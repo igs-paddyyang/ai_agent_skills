@@ -1,7 +1,7 @@
 ---
 inclusion: always
-version: "1.3.0"
-last_synced: "2026-03-25"
+version: "1.4.0"
+last_synced: "2026-04-10"
 ---
 
 # 產品概述
@@ -15,10 +15,19 @@ Google Antigravity — Agent Skills Factory。一個用於建立 AI Agent 架構
 1. 用 `skill-spec-writer` 產出技能級規格，餵給 `skill-creator`
 2. 用 `skill-creator` 建立、測試、迭代改進 Kiro Skills
 3. 用 `software-spec-writer` 產出專案級規格文件驅動開發
-4. 用 `arkbot-agent-generator` 一鍵生成完整的 AI Agent（ArkBot）專案
-5. 在 ArkBot 上部署外部產出的 Skill Package
+4. 用 `kiro-agent` 管理多 Agent 艦隊（Telegram 指揮中心 + 多後端 AI CLI）
+5. 用 `llm-mcp-connector` 建立支援多 LLM Provider 的 MCP Server
 
 ## 核心產出物
+
+### kiro-agent（多 Agent 艦隊管理系統）
+- 將 Telegram 轉變為 AI 編碼 Agent 的指揮中心
+- 支援 5 種 AI CLI 後端：kiro-cli、claude-code、gemini-cli、codex、opencode
+- 每個 Telegram Forum Topic 對應一個獨立 Agent Session（tmux 隔離）
+- Agent 間透過 MCP Tool 進行 P2P 協作（7 個 MCP Tool）
+- 自主運維：費用控管、掛起偵測、Context 輪替、cron 排程、模型故障轉移
+- Web Dashboard（FastAPI + SSE 即時推送）
+- 19 個模組、330 個單元測試
 
 ### Kiro Skills（21 個）
 - `skill-creator` — 建立 / 測試 / 打包技能的元技能

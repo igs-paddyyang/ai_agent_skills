@@ -1,7 +1,7 @@
 ---
 inclusion: always
-version: "1.2.0"
-last_synced: "2026-03-25"
+version: "1.3.0"
+last_synced: "2026-04-10"
 ---
 
 # 專案結構
@@ -15,46 +15,30 @@ last_synced: "2026-03-25"
 │   │   ├── structure.md                 # 專案結構（always）
 │   │   ├── memory.md                    # 專案記憶（manual）
 │   │   └── ai_workflow.md              # 協作 SOP（manual）
-│   └── skills/                          # Kiro 技能（核心產出物）
-│       ├── skill-creator/               # 技能建立器（含 eval 測試框架）
-│       ├── software-spec-writer/        # 軟體工程規格文件撰寫師
-│       ├── gemini-canvas-dashboard/     # 通用 Gemini Canvas 儀表板
-│       ├── skill-spec-writer/           # 技能規格撰寫師
-│       ├── websearch-summarizer/        # 網頁搜尋摘要師
-│       ├── env-setup-installer/         # 環境與服務安裝
-│       ├── env-smoke-test/              # 環境煙霧測試
-│       ├── skill-sync/                  # 技能同步備份
-│       ├── document-summarizer/         # 文件摘要師
-│       ├── game-spec-writer/             # 遊戲機台規格撰寫師（捕魚機/老虎機/棋牌）
-│       ├── game-design-document-writer/ # 遊戲企劃文件撰寫師
-│       ├── skill-seeker/               # 文件轉技能探索器
-│       ├── tdd-workflow/               # 測試驅動開發工作流
-│       ├── software-architecture-guide/ # 軟體架構指引
-│       ├── mcp-builder-guide/          # MCP Server 建立指引
-│       ├── prompt-engineering-guide/   # Prompt 工程指引
-│       ├── changelog-generator/        # 變更紀錄產生器
-│       ├── d3-visualization-guide/     # D3.js 視覺化指引
-│       ├── skill-tapestry/             # 技能知識網路
-│       └── ci-automation/             # CI 自動化（lint + validate + sync）
+│   ├── skills/                          # Kiro 技能（核心產出物，21 個）
+│   └── specs/
+│       └── kiro-agent/                  # kiro-agent 規格文件（Kiro IDE 用）
 │
 ├── .agent/
 │   └── skills/                          # 正式環境（備份，由 skill-sync 同步）
 │
-├── docs/                                # 設計文件與規格
-│   ├── agent-arkbot-spec.md             # ArkBot 完整規格文件 v3.1
-│   ├── arkbot-agent-generator-spec.md   # arkbot-agent-generator Skill Spec
-│   ├── arkbot-generator-refactor-spec.md # 模板模組化重構規格文件
-│   ├── arkbot-skill-runtime-spec.md     # Skill Runtime 規格文件
-│   ├── arkagent-upgrade-spec.md         # ArkAgent OS 升級規格文件 v1.1（10 Task ✅）
-│   ├── arkagent-platform-spec.md        # 平台級架構升級規格文件 v1.1（11 Task ✅）
-│   ├── generator-platform-spec.md       # Generator Platform 統一產生器規格文件 v1.1（6 Task ✅）
-│   ├── generator-issues-report.md       # Generator 產出問題追蹤 v2.1（12 Issues + 8 Fixes）
-│   ├── arkbot-to-arkagent-design.md     # ArkAgent OS 設計願景
-│   ├── dashboard-impl.md               # 儀表板實作摘要
-│   ├── skill-seeker-spec.md            # skill-seeker Skill Spec
-│   ├── agent優化.md / agent優化-spec.md  # Agent 雙層決策架構
-│   └── arkbot優化.md / arkbot優化-spec.md # ArkBot Skill Factory 設計
+├── kiro_agent/                          # kiro-agent 多 Agent 艦隊管理系統
+│   ├── *.py                             # 19 個 Python 模組
+│   ├── tests/unit/                      # 19 個單元測試（330 tests）
+│   ├── docs/tutorial.md                 # 教學使用手冊
+│   ├── pyproject.toml                   # 套件配置
+│   ├── requirements.txt                 # 依賴清單
+│   └── README.md                        # 專案說明
 │
+├── llm-mcp-server/                      # LLM MCP Server（多 Provider 切換）
+│   ├── server.py                        # MCP Server 入口
+│   ├── providers/                       # LLM Provider 實作
+│   └── README.md                        # 說明文件
+│
+├── docs/                                # 設計文件與規格
+├── output/                              # 產出物暫存
+├── pyproject.toml                       # 工作區配置（pytest testpaths）
+├── requirements.txt                     # 工作區 Python 套件
 └── README.md                            # 專案說明
 ```
 
@@ -66,10 +50,16 @@ last_synced: "2026-03-25"
 - `skill-creator` 為元技能，負責建立和管理其他技能
 - 版本管理採用 Semantic Versioning
 
+### kiro-agent（多 Agent 艦隊管理系統）
+- 自包含子專案：原始碼 + 測試 + 文件 + pyproject.toml 全在 `kiro_agent/` 下
+- 19 個 Python 模組，分為 6 層：外部介面 / 核心引擎 / 協作 / 自主運維 / 輔助功能 / 基礎設施
+- 330 個單元測試，執行：`py -m pytest kiro_agent/tests/unit/ -q`
+- 規格文件保留在 `.kiro/specs/kiro-agent/`（供 Kiro IDE 使用）
+
 ### ArkBot / ArkAgent OS（產出的 Agent）
 - ArkBot 模式：四層架構（Foundation / Decision Engine / Skill Runtime / Integration），~37 檔
-- ArkAgent OS 模式：平台級架構（Agent Kernel / Intent Engine / Skill Runtime / Memory System / Tool Gateway / Domain Controller / Skill Planner / API Gateway），~91 檔
-- 統一 CLI：`python generate.py <profile> <name>`，舊 generator 為 deprecated wrapper
+- ArkAgent OS 模式：平台級架構，~91 檔
+- 統一 CLI：`python generate.py <profile> <name>`
 
 ### 技能開發流程
 - `.kiro/skills/` — 研發系統（使用 Kiro IDE 開發技能，skill-creator 優先在此建立）

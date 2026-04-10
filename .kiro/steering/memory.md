@@ -1,7 +1,7 @@
 ---
 inclusion: manual
-version: "1.1.0"
-last_synced: "2026-03-24"
+version: "1.2.0"
+last_synced: "2026-04-10"
 ---
 
 # 專案記憶
@@ -16,13 +16,23 @@ last_synced: "2026-03-24"
 - 定位：Agent Framework 與 Agent Skills 開發、測試、打包專案
 - Python 3.12，透過 `py` 啟動器執行
 - 使用者：paddyyang
-- 最後更新：2026-03-25
+- 最後更新：2026-04-10
 
 ---
 
 ## 當前開發狀態
 
-### Kiro Skills（21 個，全部含 README.md）
+### kiro-agent（多 Agent 艦隊管理系統）v0.1.0
+- 自包含子專案：`kiro_agent/`（原始碼 + 測試 + 文件 + pyproject.toml）
+- 19 個 Python 模組、330 個單元測試
+- 核心功能：Telegram Forum Topic 路由、5 種 AI CLI 後端（tmux 隔離）、Fleet Manager 生命週期管理
+- 協作：MCP Bridge 7 個 Tool（list_instances / delegate_task / broadcast 等）
+- 自主運維：Cost Guard / Hang Detector / Context Guardian / Scheduler / Model Failover
+- 輔助：語音轉錄（Groq Whisper）、HTML 對話匯出、Web Dashboard（FastAPI + SSE）
+- CLI：`kiro-agent fleet start/stop/status`、`instance create/delete`、`backend doctor`
+- 規格文件：`.kiro/specs/kiro-agent/`（requirements.md + design.md + tasks.md）
+
+### Kiro Skills（22 個，全部含 README.md）
 - `skill-creator` v2.1.1 — 技能建立 / 測試 / 迭代改進（含 eval 框架、盲測比較、描述優化）
 - `skill-spec-writer` v0.2.1 — 技能級規格文件（餵給 skill-creator，5 階段工作流程）
 - `software-spec-writer` v1.1.1 — 軟體工程規格文件（8 章節：Part I 規格設計 5 + Part II 執行計畫 3）
@@ -44,6 +54,7 @@ last_synced: "2026-03-24"
 - `d3-visualization-guide` v0.1.0 — D3.js 互動圖表（折線/長條/圓餅/散佈/樹狀圖）
 - `skill-tapestry` v0.1.0 — 技能關聯索引與知識網路（21 技能全量掃描完成）
 - `ci-automation` v0.1.0 — CI 自動化（lint + validate + sync 三階段，含 ci_local.py）
+- `llm-mcp-connector` v0.1.0 — LLM MCP 連線（多 Provider 切換、Kiro CLI 整合、scaffold 產生器）
 
 ### ArkBot 範例專案（nana_bot/）
 - Telegram Bot + Web 對話（port 2141），四層架構
@@ -112,5 +123,6 @@ last_synced: "2026-03-24"
 
 ## 上次對話摘要
 
-- 2026-03-25：移除 arkbot-agent-generator（含短暫拆分為 arkagent-bot-generator + arkagent-skill-creator 後再移除）。技能數 22→21。修正 ci_local.py cp950 encoding bug（加 PYTHONIOENCODING=utf-8）。更新所有 steering 文件對齊 21 技能。skill-sync 21/21 同步。
-- 2026-03-24：完成 Skills 體系缺口補強計畫全部驗證。changelog-generator git log 解析測試通過（9/12 commits）、skill-tapestry 全量關聯索引產出（21 技能）、skill-sync 全量同步完成（21/21 成功）、手動觸發測試通過（tdd-workflow + software-architecture-guide）。spec checklist 全部勾選完成。產生根目錄 README.md。
+- 2026-04-10：完成 kiro-agent v0.1.0 全部實作（23 個 required tasks）。19 個模組、330 個單元測試。整合所有檔案到 `kiro_agent/` 自包含子專案（原始碼 + tests/ + docs/ + pyproject.toml）。建立教學使用手冊 `kiro_agent/docs/tutorial.md`。清理根目錄 pyproject.toml（還原為工作區配置）、移除殘留 cache。更新所有 steering 文件與 README.md。
+- 2026-04-09：建立 llm-mcp-connector v0.1.0 技能。4 Phase 工作流程（需求確認→產出專案→Kiro 整合→驗證）、Provider 抽象層（Gemini 預設 + OpenAI 範例）、5 個 MCP Tool、scaffold_server.py 骨架產生器。技能數 21→22。
+- 2026-03-25：移除 arkbot-agent-generator。技能數 22→21。修正 ci_local.py cp950 encoding bug。更新所有 steering 文件對齊 21 技能。

@@ -1,0 +1,38 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "kiro-agent"
+version = "0.1.0"
+description = "多 Agent 艦隊管理系統 — 將 Telegram 轉變為 AI 編碼 Agent 的指揮中心"
+requires-python = ">=3.12"
+dependencies = [
+    "python-telegram-bot",
+    "PyYAML",
+    "FastAPI",
+    "uvicorn",
+    "httpx",
+    "croniter",
+    "mcp",
+    "google-genai",
+]
+
+[project.optional-dependencies]
+dev = [
+    "hypothesis",
+    "pytest",
+    "pytest-asyncio",
+]
+
+[project.scripts]
+kiro-agent = "kiro_agent.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["kiro_agent*"]
+exclude = ["tests*"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
